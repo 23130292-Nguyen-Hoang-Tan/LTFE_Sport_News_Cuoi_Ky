@@ -1,0 +1,77 @@
+/* header */
+.main-header {
+    width: 100%;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+}
+
+/* logo */
+.logo img {
+    height: 75px;
+}
+
+/* link */
+.nav-right a {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+/* quảng cáo đăng bài */
+.qc {
+    color: #333;
+    font-size: 13px !important;
+}
+
+.qc .red {
+    color: #e31e24;
+}
+
+.post {
+    color: #1a3c8b;
+}
+
+/* btn đăng kí đăng nhập */
+.btn-box {
+    color: #1a3c8b !important;
+    border: 1px solid #1a3c8b;
+    border-radius: 6px;
+    padding: 6px 14px;
+}
+
+.btn-box:hover {
+    background: #1a3c8b;
+    color: #fff !important;
+}
+
+/* btn nhóm cộng đồng */
+.btn-group-custom {
+    background: #eef4ff;
+    color: #1a3c8b !important;
+    border-radius: 20px;
+    padding: 6px 16px;
+}
+
+.btn-group-custom:hover {
+    background: #e0ecff;
+}
+
+@media (max-width: 991px) {
+    .nav-right {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
