@@ -19,15 +19,14 @@ export default function Navbar() {
                             ⚽ BÓNG ĐÁ <i className="bi bi-chevron-down ms-1"></i>
                         </Link>
                         <div className="dropdown-content">
-                            <Link to="#" className="text-danger fw-bold">🔴 Tỉ số trực tiếp</Link>
+                            <Link to="/live-scores" className="text-danger fw-bold">🔴 Tỉ số trực tiếp</Link>
                             <Link to="#">Chi tiết trận đấu</Link>
                             <Link to="#">Bảng xếp hạng & Đội bóng</Link>
                         </div>
                     </div>
 
                     {/* Các môn thể thao phổ biến tại Việt Nam */}
-                    <Link to="#" className="nav-link-item">CẦU LÔNG</Link>
-                    <Link to="#" className="nav-link-item">BÓNG RỔ</Link>
+                    <Link to="#" className="nav-link-item">DANH MỤC</Link>
                     <Link to="#" className="nav-link-item">ESPORTS</Link>
                 </div>
 
