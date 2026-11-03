@@ -1,5 +1,6 @@
 import logo from "../../assets/images/logo.png";
 import "./Header.css";
+import { Link } from 'react-router-dom';
 
 function Header() {
     return (
@@ -13,31 +14,31 @@ function Header() {
 
                     {/* menu bên phải */}
                     <div className="nav-right d-flex align-items-center gap-3">
-                        <a href="#" className="nav-item qc">
+                        <Link to="#" className="nav-item qc">
                             <i className="bi bi-bullseye red"></i>
                             <span>QUẢNG CÁO</span>
-                        </a>
+                        </Link>
 
-                        <a href="#" className="nav-item post">
+                        <Link to="#" className="nav-item post">
                             <i className="bi bi-pencil"></i>
                             <span>Đăng bài</span>
-                        </a>
+                        </Link>
 
-                        <a href="#" className="btn-box">
+                        <Link to="#" className="btn-box">
                             <i className="bi bi-person-plus"></i>
                             <span>Đăng ký</span>
-                        </a>
+                        </Link>
 
                         <a href="#" className="btn-box">
                             <i className="bi bi-person"></i>
                             <span>Đăng nhập</span>
                         </a>
 
-                        <a href="#" className="btn-group-custom">
+                        <Link to="#" className="btn-group-custom">
                             <i className="bi bi-people-fill"></i>
                             <span>Nhóm cộng đồng</span>
                             <i className="bi bi-chevron-down"></i>
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>

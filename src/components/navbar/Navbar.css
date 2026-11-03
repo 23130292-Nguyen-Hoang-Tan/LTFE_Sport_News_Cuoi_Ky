@@ -1,0 +1,202 @@
+/* thanh màu xanh */
+.main-navbar {
+    width: 100%;
+    background-color: #1a3c8b;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* nội dung */
+.navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.nav-link-item {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 12px 0;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+}
+
+.nav-link-item:hover,
+.nav-link-item.active {
+    color: #ffcc00;
+}
+
+/* bóng đá */
+.nav-link-item.highlight {
+    color: #ffeb3b;
+}
+
+/* drop menu bóng đá*/
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #ffffff;
+    min-width: 220px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    overflow: hidden;
+    z-index: 1001;
+    padding: 5px 0;
+}
+
+/* drop menu user */
+.dropdown-right {
+    right: 0;
+    left: auto;
+}
+
+.dropdown-content a,
+.dropdown-content button {
+    color: #333333;
+    padding: 10px 16px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    width: 100%;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.dropdown-content a:hover,
+.dropdown-content button:hover {
+    background-color: #f4f5f7;
+    color: #e31e24;
+}
+
+.dropdown-divider {
+    margin: 4px 0;
+    border-top: 1px solid #e9ecef;
+}
+
+.nav-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* tìm kiếm + lọc */
+.nav-center {
+    display: flex;
+    align-items: center;
+}
+
+.search-group {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 3px 8px 3px 14px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.search-input {
+    border: none;
+    outline: none;
+    font-size: 12px;
+    width: 130px;
+    color: #333333;
+}
+
+.filter-select {
+    border: none;
+    outline: none;
+    font-size: 11px;
+    color: #555555;
+    border-left: 1px solid #dddddd;
+    padding-left: 6px;
+    margin-left: 4px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.search-btn {
+    border: none;
+    background: transparent;
+    color: #1a3c8b;
+    cursor: pointer;
+    padding: 2px 4px;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    transition: color 0.2s;
+}
+
+.search-btn:hover {
+    color: #e31e24;
+}
+
+/* tiênj ích cá nhân */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* nút đọc sau */
+.bookmark-btn {
+    color: #ffffff;
+    font-size: 17px;
+    transition: color 0.2s, transform 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.bookmark-btn:hover {
+    color: #ffcc00;
+    transform: scale(1.15);
+}
+
+.user-profile-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 0;
+}
+
+.user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid #ffffff;
+    object-fit: cover;
+}
+
+.username {
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

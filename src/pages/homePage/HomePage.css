@@ -1,0 +1,28 @@
+html, body, .site-wrapper {
+    background-color: #f4f5f7;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+}
+
+#root {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* khung chứa bài viết */
+.site-layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    min-height: 60vh;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
+}
+
+.main-content {
+    width: 100%;
+    box-sizing: border-box;
+}
