@@ -1,4 +1,3 @@
-/* header */
 .main-header {
     width: 100%;
     background-color: #ffffff;
@@ -14,9 +13,8 @@
     padding: 10px 15px;
 }
 
-/* logo */
 .logo img {
-    height: 75px;
+    height: 55px; 
 }
 
 /* link */
@@ -30,18 +28,18 @@
     white-space: nowrap;
 }
 
-/* quảng cáo đăng bài */
-.qc {
-    color: #333;
-    font-size: 13px !important;
-}
-
-.qc .red {
-    color: #e31e24;
-}
-
+/* Nút Đăng bài */
 .post {
-    color: #1a3c8b;
+    background-color: #1a3c8b;
+    color: #ffffff !important;
+    padding: 6px 16px;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+}
+
+.post:hover {
+    background-color: #132b66;
+    color: #ffffff !important;
 }
 
 /* btn đăng kí đăng nhập */
@@ -50,6 +48,11 @@
     border: 1px solid #1a3c8b;
     border-radius: 6px;
     padding: 6px 14px;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-box.login-btn {
+    border: 1px solid;
 }
 
 .btn-box:hover {
@@ -57,12 +60,13 @@
     color: #fff !important;
 }
 
-/* btn nhóm cộng đồng */
+/* btn góc cộng đồng */
 .btn-group-custom {
     background: #eef4ff;
     color: #1a3c8b !important;
     border-radius: 20px;
     padding: 6px 16px;
+    transition: all 0.2s ease-in-out;
 }
 
 .btn-group-custom:hover {

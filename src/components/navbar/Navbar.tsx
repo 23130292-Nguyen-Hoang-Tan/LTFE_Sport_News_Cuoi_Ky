@@ -1,4 +1,4 @@
-import  { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 
@@ -25,9 +25,9 @@ export default function Navbar() {
                         </div>
                     </div>
 
-                    {/* các môn thể thao khác */}
-                    <Link to="#" className="nav-link-item">BÓNG CHUYỀN</Link>
-                    <Link to="#" className="nav-link-item">TENNIS</Link>
+                    {/* Các môn thể thao phổ biến tại Việt Nam */}
+                    <Link to="#" className="nav-link-item">CẦU LÔNG</Link>
+                    <Link to="#" className="nav-link-item">BÓNG RỔ</Link>
                     <Link to="#" className="nav-link-item">ESPORTS</Link>
                 </div>
 
@@ -36,12 +36,12 @@ export default function Navbar() {
                     <div className="search-group">
                         <input
                             type="text"
-                            placeholder="Tìm kiếm tin tức..."
+                            placeholder="Tìm kiếm tin tức, đội bóng..."
                             className="search-input"
                         />
                         <select className="filter-select">
                             <option value="newest">Mới nhất</option>
-                            <option value="popular">Xem nhiều</option>
+                            <option value="popular">Phổ biến</option>
                         </select>
                         <button className="search-btn">
                             <i className="bi bi-search"></i>
@@ -51,21 +51,23 @@ export default function Navbar() {
 
                 {/* tiện ích cá nhân */}
                 <div className="nav-right">
-                    {/* nút đọc sau */}
+                    {/* nút đọc sau có nền nổi bật */}
                     <Link to="#" className="bookmark-btn" title="Bài viết đã lưu (Đọc sau)">
-                        <i className="bi bi-bookmark-fill"></i>
+                        <i className="bi bi-bookmark-star-fill"></i>
+                        <span>Đọc sau</span>
                     </Link>
 
                     {/* nếu đã login hiện avatar */}
                     {isLoggedIn && (
                         <div className="nav-dropdown">
                             <div className="user-profile-trigger">
-                                <img src="" alt="Avatar" className="user-avatar" />
+                                <img src="https://via.placeholder.com/32" alt="Avatar" className="user-avatar" />
                                 <span className="username">Anh7CR7</span>
                             </div>
                             <div className="dropdown-content dropdown-right">
                                 <Link to="#"><i className="bi bi-person me-2"></i>Trang cá nhân</Link>
-                                <Link to="#"><i className="bi bi-bookmark me-2"></i>Mục đọc sau</Link>
+                                {/* Thay thế Mục đọc sau bằng Bài viết cá nhân */}
+                                <Link to="#"><i className="bi bi-card-text me-2"></i>Bài viết cá nhân</Link>
                                 <hr className="dropdown-divider" />
                                 <button onClick={() => setIsLoggedIn(false)} className="logout-btn">
                                     <i className="bi bi-box-arrow-right me-2"></i>Đăng xuất
