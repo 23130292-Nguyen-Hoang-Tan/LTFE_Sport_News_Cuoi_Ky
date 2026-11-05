@@ -20,7 +20,7 @@ export default function Navbar() {
                         </Link>
                         <div className="dropdown-content">
                             <Link to="/live-scores" className="text-danger fw-bold">🔴 Tỉ số trực tiếp</Link>
-                            <Link to="#">Chi tiết trận đấu</Link>
+                            <Link to="/match-detail" className="text-primary fw-bold">⚽ Chi tiết trận đấu</Link>
                             <Link to="#">Bảng xếp hạng & Đội bóng</Link>
                         </div>
                     </div>
