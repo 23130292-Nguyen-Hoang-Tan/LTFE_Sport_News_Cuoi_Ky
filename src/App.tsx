@@ -9,6 +9,8 @@ import Footer from "./components/footer/Footer";
 import HomePage from "./pages/homePage/HomePage";
 import LiveScores from "./pages/LiveScores/LiveScores";
 import MatchDetail from "./pages/MatchDetail/MatchDetail";
+import StandingsPage from './pages/StandingsPage/StandingsPage';
+
 
 function App() {
     return (
@@ -23,6 +25,7 @@ function App() {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/live-scores" element={<LiveScores />} />
                     <Route path="/match-detail" element={<MatchDetail />} />
+                    <Route path="/standings" element={<StandingsPage />} />
                 </Routes>
             </div>
 

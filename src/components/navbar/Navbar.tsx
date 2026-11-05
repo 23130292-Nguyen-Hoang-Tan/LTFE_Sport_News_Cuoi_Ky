@@ -19,9 +19,9 @@ export default function Navbar() {
                             ⚽ BÓNG ĐÁ <i className="bi bi-chevron-down ms-1"></i>
                         </Link>
                         <div className="dropdown-content">
-                            <Link to="/live-scores" className="text-danger fw-bold">🔴 Tỉ số trực tiếp</Link>
-                            <Link to="/match-detail" className="text-primary fw-bold">⚽ Chi tiết trận đấu</Link>
-                            <Link to="#">Bảng xếp hạng & Đội bóng</Link>
+                            <Link to="/live-scores" className="text-danger fw-bold">Tỉ số trực tiếp</Link>
+                            <Link to="/match-detail" className="text-primary fw-bold">Chi tiết trận đấu</Link>
+                            <Link to="/standings" className="text-success fw-bold">Bảng xếp hạng & Đội bóng</Link>
                         </div>
                     </div>
 
