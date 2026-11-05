@@ -26,3 +26,8 @@ html, body, .site-wrapper {
     width: 100%;
     box-sizing: border-box;
 }
+
+.news-container{
+    max-width: 820px;
+    margin: 0;
+}
