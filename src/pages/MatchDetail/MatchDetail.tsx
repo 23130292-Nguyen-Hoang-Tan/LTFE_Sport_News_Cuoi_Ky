@@ -26,10 +26,10 @@ export default function MatchDetail() {
             { label: "Thẻ vàng", home: "2", away: "3" },
         ],
         events: [
-            { time: "12'", type: "goal", team: "away", text: "⚽ Vào! Bukayo Saka mở tỷ số cho Arsenal." },
-            { time: "24'", type: "goal", team: "home", text: "⚽ Vào! Bruno Fernandes gỡ hòa 1-1 cho Man Utd." },
-            { time: "55'", type: "goal", team: "home", text: "⚽ Vào! Marcus Rashford nâng tỷ số lên 2-1." },
-            { time: "68'", type: "card", team: "away", text: "🟨 Thẻ vàng cho Declan Rice (Arsenal)." }
+            { time: "12'", type: "goal", team: "away", text: "Vào! Bukayo Saka mở tỷ số cho Arsenal." },
+            { time: "24'", type: "goal", team: "home", text: "Vào! Bruno Fernandes gỡ hòa 1-1 cho Man Utd." },
+            { time: "55'", type: "goal", team: "home", text: "Vào! Marcus Rashford nâng tỷ số lên 2-1." },
+            { time: "68'", type: "card", team: "away", text: "Thẻ vàng cho Declan Rice (Arsenal)." }
         ]
     };
 
@@ -48,7 +48,7 @@ export default function MatchDetail() {
                 {/* 1. Người ghi bàn đội nhà (Cột trái) */}
                 <div className="scorers-side home-scorers">
                     {matchData.homeTeam.scorers.map((s, idx) => (
-                        <span key={idx} className="scorer-item">⚽ {s}</span>
+                        <span key={idx} className="scorer-item"> {s}</span>
                     ))}
                 </div>
 
@@ -74,7 +74,7 @@ export default function MatchDetail() {
                 {/* 5. Người ghi bàn đội khách (Cột phải) */}
                 <div className="scorers-side away-scorers">
                     {matchData.awayTeam.scorers.map((s, idx) => (
-                        <span key={idx} className="scorer-item">{s} ⚽</span>
+                        <span key={idx} className="scorer-item">{s}</span>
                     ))}
                 </div>
             </div>

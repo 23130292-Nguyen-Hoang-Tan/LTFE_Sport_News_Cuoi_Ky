@@ -28,20 +28,6 @@
     white-space: nowrap;
 }
 
-/* Nút Đăng bài */
-.post {
-    background-color: #1a3c8b;
-    color: #ffffff !important;
-    padding: 6px 16px;
-    border-radius: 6px;
-    transition: all 0.2s ease-in-out;
-}
-
-.post:hover {
-    background-color: #132b66;
-    color: #ffffff !important;
-}
-
 /* btn đăng kí đăng nhập */
 .btn-box {
     color: #1a3c8b !important;
@@ -58,19 +44,6 @@
 .btn-box:hover {
     background: #1a3c8b;
     color: #fff !important;
-}
-
-/* btn góc cộng đồng */
-.btn-group-custom {
-    background: #eef4ff;
-    color: #1a3c8b !important;
-    border-radius: 20px;
-    padding: 6px 16px;
-    transition: all 0.2s ease-in-out;
-}
-
-.btn-group-custom:hover {
-    background: #e0ecff;
 }
 
 @media (max-width: 991px) {

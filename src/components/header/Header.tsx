@@ -14,17 +14,6 @@ function Header() {
 
                     {/* menu bên phải */}
                     <div className="nav-right d-flex align-items-center gap-3">
-
-                        <Link to="#" className="nav-item post">
-                            <i className="bi bi-pencil"></i>
-                            <span>Đăng bài</span>
-                        </Link>
-                        
-                        <Link to="#" className="btn-group-custom">
-                            <i className="bi bi-people-fill"></i>
-                            <span>Góc cộng đồng</span>
-                        </Link>
-
                         {/* Cụm User Authentication được tách biệt bằng viền dọc */}
                         <div className="d-flex align-items-center gap-2 border-start ps-3 ms-2">
                             <Link to="#" className="btn-box login-btn">
