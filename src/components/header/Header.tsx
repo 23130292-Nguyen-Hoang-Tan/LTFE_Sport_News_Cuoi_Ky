@@ -1,8 +1,11 @@
 import logo from "../../assets/images/logo.png";
 import "./Header.css";
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 function Header() {
+    const { user, isAuthenticated, logout } = useAuth();
+
     return (
         <header className="main-header">
             <div className="header-content">
@@ -27,15 +30,39 @@ function Header() {
 
                         {/* Cụm User Authentication được tách biệt bằng viền dọc */}
                         <div className="d-flex align-items-center gap-2 border-start ps-3 ms-2">
-                            <Link to="#" className="btn-box login-btn">
-                                <i className="bi bi-person"></i>
-                                <span>Đăng nhập</span>
-                            </Link>
+                            {isAuthenticated && user ? (
+                                <>
+                                    <Link to="/profile" className="header-user-badge" title="Xem thông tin cá nhân">
+                                        <img
+                                            src={user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80'}
+                                            alt={user.name}
+                                            className="header-user-avatar"
+                                        />
+                                        <span className="header-user-name">{user.name}</span>
+                                    </Link>
+                                    <button
+                                        type="button"
+                                        onClick={logout}
+                                        className="btn-box header-logout-btn"
+                                        title="Đăng xuất"
+                                    >
+                                        <i className="bi bi-box-arrow-right"></i>
+                                        <span>Đăng xuất</span>
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link to="/login" className="btn-box login-btn">
+                                        <i className="bi bi-person"></i>
+                                        <span>Đăng nhập</span>
+                                    </Link>
 
-                            <Link to="#" className="btn-box">
-                                <i className="bi bi-person-plus"></i>
-                                <span>Đăng ký</span>
-                            </Link>
+                                    <Link to="/register" className="btn-box">
+                                        <i className="bi bi-person-plus"></i>
+                                        <span>Đăng ký</span>
+                                    </Link>
+                                </>
+                            )}
                         </div>
                         
                     </div>

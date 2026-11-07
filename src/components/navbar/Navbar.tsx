@@ -1,17 +1,16 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 
 export default function Navbar() {
-    //biến kiểm tra user đăng nhập chưa
-    const [isLoggedIn, setIsLoggedIn] = useState(true);
+    const { user, isAuthenticated, logout } = useAuth();
 
     return (
         <nav className="main-navbar">
             <div className="navbar-container">
                 {/*trang chủ*/}
                 <div className="nav-left">
-                    <Link to="#" className="nav-link-item active">TRANG CHỦ</Link>
+                    <Link to="/" className="nav-link-item active">TRANG CHỦ</Link>
 
                     {/* bóng đá */}
                     <div className="nav-dropdown">
@@ -57,22 +56,34 @@ export default function Navbar() {
                     </Link>
 
                     {/* nếu đã login hiện avatar */}
-                    {isLoggedIn && (
+                    {isAuthenticated && user ? (
                         <div className="nav-dropdown">
                             <div className="user-profile-trigger">
-                                <img src="https://via.placeholder.com/32" alt="Avatar" className="user-avatar" />
-                                <span className="username">Anh7CR7</span>
+                                <img
+                                    src={user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80'}
+                                    alt={user.name}
+                                    className="user-avatar"
+                                />
+                                <span className="username" title={user.name}>{user.name}</span>
                             </div>
                             <div className="dropdown-content dropdown-right">
-                                <Link to="#"><i className="bi bi-person me-2"></i>Trang cá nhân</Link>
-                                {/* Thay thế Mục đọc sau bằng Bài viết cá nhân */}
-                                <Link to="#"><i className="bi bi-card-text me-2"></i>Bài viết cá nhân</Link>
+                                <Link to="/profile">
+                                    <i className="bi bi-person me-2"></i>Trang cá nhân
+                                </Link>
+                                <Link to="/profile">
+                                    <i className="bi bi-card-text me-2"></i>Bài viết cá nhân
+                                </Link>
                                 <hr className="dropdown-divider" />
-                                <button onClick={() => setIsLoggedIn(false)} className="logout-btn">
+                                <button type="button" onClick={logout} className="logout-btn">
                                     <i className="bi bi-box-arrow-right me-2"></i>Đăng xuất
                                 </button>
                             </div>
                         </div>
+                    ) : (
+                        <Link to="/login" className="nav-link-item text-white d-flex align-items-center gap-1">
+                            <i className="bi bi-person-circle"></i>
+                            <span className="d-none d-sm-inline">Tài khoản</span>
+                        </Link>
                     )}
                 </div>
 
