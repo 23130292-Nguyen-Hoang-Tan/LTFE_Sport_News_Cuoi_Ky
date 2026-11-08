@@ -216,33 +216,6 @@ export default function Login() {
                         </div>
                     </div>
 
-                    {/* Phân cách */}
-                    <div className="separator-container my-4">
-                        <div className="separator-line"></div>
-                        <span className="separator-text">hoặc đăng nhập bằng</span>
-                        <div className="separator-line"></div>
-                    </div>
-
-                    {/* Social Login buttons */}
-                    <div className="social-buttons d-flex gap-2">
-                        <button
-                            type="button"
-                            className="social-btn google-btn"
-                            onClick={() => handleQuickFill('cr7@thethao247.vn', '123456')}
-                        >
-                            <i className="bi bi-google text-danger me-2"></i>
-                            Google
-                        </button>
-                        <button
-                            type="button"
-                            className="social-btn facebook-btn"
-                            onClick={() => handleQuickFill('user@thethao247.vn', '123456')}
-                        >
-                            <i className="bi bi-facebook text-primary me-2"></i>
-                            Facebook
-                        </button>
-                    </div>
-
                     {/* Chuyển sang Đăng ký */}
                     <div className="login-footer text-center mt-4 pt-3 border-top">
                         <span className="text-muted">Chưa có tài khoản? </span>
