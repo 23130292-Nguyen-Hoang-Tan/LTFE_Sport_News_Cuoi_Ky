@@ -15,7 +15,7 @@ function Header() {
                     {/* menu bên phải */}
                     <div className="nav-right d-flex align-items-center gap-3">
                         {/* Cụm User Authentication được tách biệt bằng viền dọc */}
-                        <div className="d-flex align-items-center gap-2 border-start ps-3 ms-2">
+                        <div className="d-flex align-items-center gap- ps-3 ms-2">
                             <Link to="#" className="btn-box login-btn">
                                 <i className="bi bi-person"></i>
                                 <span>Đăng nhập</span>
