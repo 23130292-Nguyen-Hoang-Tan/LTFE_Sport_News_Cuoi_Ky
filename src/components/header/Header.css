@@ -18,7 +18,7 @@
 }
 
 /* link */
-.nav-right a {
+.nav-right a, .nav-right button {
     text-decoration: none;
     font-size: 14px;
     font-weight: 600;
@@ -38,7 +38,7 @@
 }
 
 .btn-box.login-btn {
-    border: 1px solid;
+    border: 1px solid #1a3c8b;
 }
 
 .btn-box:hover {

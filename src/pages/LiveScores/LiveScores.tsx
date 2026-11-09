@@ -114,7 +114,7 @@ const LiveScores: React.FC = () => {
               </div>
             </div>
 
-           {match.events.length > 0 && (
+          {match.events.length > 0 && (
               <div className="match-events-columns">
                 {/* Cột trái: Sự kiện của đội nhà */}
                 <div className="events-column home-column">

@@ -1,17 +1,16 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 
 export default function Navbar() {
-    // Biến kiểm tra user đăng nhập chưa
-    const [isLoggedIn, setIsLoggedIn] = useState(true);
+    const { user, isAuthenticated, logout } = useAuth();
 
     return (
         <nav className="main-navbar">
             <div className="navbar-container">
                 {/* Trang chủ */}
                 <div className="nav-left">
-                    <Link to="#" className="nav-link-item active">TRANG CHỦ</Link>
+                    <Link to="/" className="nav-link-item active">TRANG CHỦ</Link>
 
                     {/* Bóng đá */}
                     <div className="nav-dropdown">
@@ -25,7 +24,7 @@ export default function Navbar() {
                         </div>
                     </div>
 
-                    {/* Danh mục các môn thể thao khác (Giao diện tĩnh giả lập từ API) */}
+                    {/* Danh mục các môn thể thao khác */}
                     <div className="nav-dropdown">
                         <Link to="#" className="nav-link-item">
                             DANH MỤC <i className="bi bi-chevron-down ms-1"></i>
@@ -63,31 +62,38 @@ export default function Navbar() {
 
                 {/* Tiện ích cá nhân */}
                 <div className="nav-right">
-                    {/* Nút đọc sau có nền nổi bật */}
                     <Link to="#" className="bookmark-btn" title="Bài viết đã lưu (Đọc sau)">
                         <i className="bi bi-bookmark-star-fill"></i>
                         <span>Đọc sau</span>
                     </Link>
 
-                    {/* Nếu đã login hiện avatar */}
-                    {isLoggedIn && (
+                    {/* Sửa lỗi merge: Đổi từ && thành ? để dùng cú pháp if/else (ba ngôi) */}
+                    {isAuthenticated ? (
                         <div className="nav-dropdown">
                             <div className="user-profile-trigger">
-                                <img src="https://via.placeholder.com/32" alt="Avatar" className="user-avatar" />
-                                <span className="username">Anh7CR7</span>
+                                <img
+                                    src={user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80'}
+                                    alt={user?.name || "User"}
+                                    className="user-avatar"
+                                />
+                                <span className="username" title={user?.name}>{user?.name || "Người dùng"}</span>
                             </div>
                             <div className="dropdown-content dropdown-right">
                                 <Link to="#"><i className="bi bi-person me-2"></i>Trang cá nhân</Link>
                                 <Link to="#"><i className="bi bi-card-text me-2"></i>Bài viết cá nhân</Link>
                                 <hr className="dropdown-divider" />
-                                <button onClick={() => setIsLoggedIn(false)} className="logout-btn">
+                                <button type="button" onClick={logout} className="logout-btn">
                                     <i className="bi bi-box-arrow-right me-2"></i>Đăng xuất
                                 </button>
                             </div>
                         </div>
+                    ) : (
+                        <Link to="/login" className="nav-link-item text-white d-flex align-items-center gap-1">
+                            <i className="bi bi-person-circle"></i>
+                            <span className="d-none d-sm-inline">Tài khoản</span>
+                        </Link>
                     )}
                 </div>
-
             </div>
         </nav>
     );

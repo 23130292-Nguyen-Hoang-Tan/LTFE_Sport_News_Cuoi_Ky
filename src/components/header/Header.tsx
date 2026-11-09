@@ -1,8 +1,12 @@
 import logo from "../../assets/images/logo.png";
 import "./Header.css";
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 function Header() {
+    // Chỉ lấy biến isAuthenticated để kiểm tra trạng thái ẩn/hiện nút
+    const { isAuthenticated } = useAuth();
+
     return (
         <header className="main-header">
             <div className="header-content">
@@ -14,19 +18,22 @@ function Header() {
 
                     {/* menu bên phải */}
                     <div className="nav-right d-flex align-items-center gap-3">
-                        {/* Cụm User Authentication được tách biệt bằng viền dọc */}
-                        <div className="d-flex align-items-center gap- ps-3 ms-2">
-                            <Link to="#" className="btn-box login-btn">
-                                <i className="bi bi-person"></i>
-                                <span>Đăng nhập</span>
-                            </Link>
+                        <div className="d-flex align-items-center gap-2 border-start ps-3 ms-2">
+                            {/* Sửa lỗi merge: Đặt điều kiện nếu CHƯA đăng nhập thì hiện 2 nút này */}
+                            {!isAuthenticated && (
+                                <>
+                                    <Link to="/login" className="btn-box login-btn">
+                                        <i className="bi bi-person"></i>
+                                        <span>Đăng nhập</span>
+                                    </Link>
 
-                            <Link to="#" className="btn-box">
-                                <i className="bi bi-person-plus"></i>
-                                <span>Đăng ký</span>
-                            </Link>
+                                    <Link to="/register" className="btn-box">
+                                        <i className="bi bi-person-plus"></i>
+                                        <span>Đăng ký</span>
+                                    </Link>
+                                </>
+                            )}
                         </div>
-                        
                     </div>
                 </div>
             </div>
