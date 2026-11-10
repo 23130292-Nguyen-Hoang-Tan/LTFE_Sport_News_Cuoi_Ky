@@ -1,13 +1,14 @@
 import "./FeatureNews.css";
+import { Link } from "react-router-dom";
 import mainImg from "../../assets/images/feature.png";
 
 function FeatureNews() {
     return (
         <div className="news-card">
             {/* ảnh */}
-            <a href="#" className="news-thumb d-block">
+            <Link to={'/news/1'} className="news-thumb d-block">
                 <img src={mainImg} alt="Messi & Suarez" className="w-100" />
-            </a>
+            </Link>
 
             {/* nội dung bài viết */}
             <div className="news-content pt-3">
