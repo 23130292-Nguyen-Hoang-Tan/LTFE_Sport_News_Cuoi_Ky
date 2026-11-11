@@ -62,12 +62,11 @@ export default function Navbar() {
 
                 {/* Tiện ích cá nhân */}
                 <div className="nav-right">
-                    <Link to="#" className="bookmark-btn" title="Bài viết đã lưu (Đọc sau)">
+                    <Link to="/saved-articles" className="bookmark-btn" title="Bài viết đã lưu (Đọc sau)">
                         <i className="bi bi-bookmark-star-fill"></i>
                         <span>Đọc sau</span>
                     </Link>
 
-                    {/* Sửa lỗi merge: Đổi từ && thành ? để dùng cú pháp if/else (ba ngôi) */}
                     {isAuthenticated ? (
                         <div className="nav-dropdown">
                             <div className="user-profile-trigger">
@@ -79,7 +78,7 @@ export default function Navbar() {
                                 <span className="username" title={user?.name}>{user?.name || "Người dùng"}</span>
                             </div>
                             <div className="dropdown-content dropdown-right">
-                                <Link to="#"><i className="bi bi-person me-2"></i>Trang cá nhân</Link>
+                                <Link to="/profile"><i className="bi bi-person me-2"></i>Trang cá nhân</Link>
                                 <Link to="#"><i className="bi bi-card-text me-2"></i>Bài viết cá nhân</Link>
                                 <hr className="dropdown-divider" />
                                 <button type="button" onClick={logout} className="logout-btn">
@@ -88,10 +87,17 @@ export default function Navbar() {
                             </div>
                         </div>
                     ) : (
-                        <Link to="/login" className="nav-link-item text-white d-flex align-items-center gap-1">
-                            <i className="bi bi-person-circle"></i>
-                            <span className="d-none d-sm-inline">Tài khoản</span>
-                        </Link>
+                        <div className="nav-dropdown">
+                            <Link to="/login" className="nav-link-item text-white d-flex align-items-center gap-1">
+                                <i className="bi bi-person-circle"></i>
+                                <span className="d-none d-sm-inline">Tài khoản</span>
+                            </Link>
+                            <div className="dropdown-content dropdown-right">
+                                <Link to="/profile"><i className="bi bi-person me-2"></i>Trang cá nhân</Link>
+                                <Link to="/login"><i className="bi bi-box-arrow-in-right me-2"></i>Đăng nhập</Link>
+                                <Link to="/register"><i className="bi bi-person-plus me-2"></i>Đăng ký</Link>
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>

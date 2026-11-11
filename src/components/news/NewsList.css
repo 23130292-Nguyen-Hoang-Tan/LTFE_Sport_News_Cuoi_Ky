@@ -1,0 +1,82 @@
+
+.latest-header {
+    border-bottom: 2px solid #e0e0e0;
+    text-align: left;
+    width: 100%;
+}
+
+/* LATEST xanh dam */
+.latest-tab {
+    background-color: #16428c;
+    position: relative;
+    height: 30px;
+    line-height: 30px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    padding: 0 16px;
+    display: inline-block; /* Ôm theo độ dài chữ và nằm sát mép trái */
+    z-index: 2;
+}
+
+.latest-tab::after {
+    content: "";
+    position: absolute;
+    right: -12px;
+    top: 0;
+    border-top: 30px solid #d32f2f;
+    border-right: 12px solid transparent;
+}
+
+.latest-tab::before {
+    content: "";
+    position: absolute;
+    right: -22px;
+    top: 0;
+    border-top: 30px solid #16428c;
+    border-right: 10px solid transparent;
+}
+
+/* danh sach bai viet */
+.news-list-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.news-item {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.news-item:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* doi mau tieu de sang do */
+.hover-red {
+    transition: color 0.2s ease;
+}
+
+.hover-red:hover {
+    color: #d32f2f !important;
+}
+
+.hover-zoom {
+    transition: transform 0.3s ease;
+}
+
+.news-item a:hover .hover-zoom {
+    transform: scale(1.05);
+}
+
+/* mo ta hien thi 2 dong */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

@@ -5,21 +5,12 @@ import './Profile.css';
 export default function Profile() {
     const { user, isAuthenticated, logout } = useAuth();
     const navigate = useNavigate();
-
-    if (!isAuthenticated || !user) {
-        return (
-            <div className="profile-container text-center py-5">
-                <div className="card shadow-sm p-4 mx-auto" style={{ maxWidth: '420px' }}>
-                    <i className="bi bi-shield-lock-fill text-warning display-4 mb-3"></i>
-                    <h4>Bạn chưa đăng nhập</h4>
-                    <p className="text-muted">Vui lòng đăng nhập để xem thông tin cá nhân và quản lý tài khoản.</p>
-                    <Link to="/login" className="btn btn-primary mt-2">
-                        <i className="bi bi-box-arrow-in-right me-2"></i>Đến trang Đăng nhập
-                    </Link>
-                </div>
-            </div>
-        );
-    }
+    const profile = user ?? {
+        id: '—',
+        name: 'Khách',
+        email: 'Chưa đăng nhập',
+        role: 'user' as const
+    };
 
     const handleLogout = () => {
         logout();
@@ -36,23 +27,23 @@ export default function Profile() {
                                 <div className="banner-content text-white text-center">
                                     <span className="badge bg-warning text-dark mb-2">
                                         <i className="bi bi-star-fill me-1"></i>
-                                        {user.role === 'admin' ? 'Quản trị viên (Admin)' : 'Thành viên thân thiết'}
+                                        {!isAuthenticated ? 'Bản xem trước' : profile.role === 'admin' ? 'Quản trị viên (Admin)' : 'Thành viên thân thiết'}
                                     </span>
                                 </div>
                             </div>
                             <div className="card-body text-center pt-0 position-relative">
                                 <div className="avatar-wrapper mb-3">
                                     <img
-                                        src={user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80'}
-                                        alt={user.name}
+                                        src={profile.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80'}
+                                        alt={profile.name}
                                         className="profile-avatar shadow"
                                     />
                                     <span className="online-indicator" title="Đang trực tuyến"></span>
                                 </div>
 
-                                <h3 className="profile-name mb-1">{user.name}</h3>
+                                <h3 className="profile-name mb-1">{profile.name}</h3>
                                 <p className="text-muted mb-3">
-                                    <i className="bi bi-envelope me-1"></i>{user.email}
+                                    <i className="bi bi-envelope me-1"></i>{profile.email}
                                 </p>
 
                                 <div className="profile-stats row text-center py-3 my-3 border-top border-bottom">
@@ -76,23 +67,23 @@ export default function Profile() {
                                     </h6>
                                     <div className="detail-item d-flex justify-content-between py-2 border-bottom">
                                         <span className="text-muted">Mã tài khoản:</span>
-                                        <span className="fw-semibold">{user.id}</span>
+                                        <span className="fw-semibold">{profile.id}</span>
                                     </div>
                                     <div className="detail-item d-flex justify-content-between py-2 border-bottom">
                                         <span className="text-muted">Vai trò hệ thống:</span>
-                                        <span className={`badge ${user.role === 'admin' ? 'bg-danger' : 'bg-primary'}`}>
-                                            {user.role}
+                                        <span className={`badge ${profile.role === 'admin' ? 'bg-danger' : 'bg-primary'}`}>
+                                            {isAuthenticated ? profile.role : 'Khách'}
                                         </span>
                                     </div>
-                                    {user.phone && (
+                                    {profile.phone && (
                                         <div className="detail-item d-flex justify-content-between py-2 border-bottom">
                                             <span className="text-muted">Số điện thoại:</span>
-                                            <span className="fw-semibold">{user.phone}</span>
+                                            <span className="fw-semibold">{profile.phone}</span>
                                         </div>
                                     )}
                                     <div className="detail-item d-flex justify-content-between py-2 border-bottom">
                                         <span className="text-muted">Ngày tham gia:</span>
-                                        <span className="fw-semibold">{user.createdAt || 'Hôm nay'}</span>
+                                        <span className="fw-semibold">{profile.createdAt || '—'}</span>
                                     </div>
                                 </div>
 
@@ -100,9 +91,15 @@ export default function Profile() {
                                     <Link to="/" className="btn btn-outline-secondary px-4">
                                         <i className="bi bi-arrow-left me-1"></i> Trang chủ
                                     </Link>
-                                    <button onClick={handleLogout} className="btn btn-danger px-4">
-                                        <i className="bi bi-box-arrow-right me-1"></i> Đăng xuất
-                                    </button>
+                                    {isAuthenticated ? (
+                                        <button onClick={handleLogout} className="btn btn-danger px-4">
+                                            <i className="bi bi-box-arrow-right me-1"></i> Đăng xuất
+                                        </button>
+                                    ) : (
+                                        <Link to="/login" className="btn btn-primary px-4">
+                                            <i className="bi bi-box-arrow-in-right me-1"></i> Đăng nhập
+                                        </Link>
+                                    )}
                                 </div>
                             </div>
                         </div>

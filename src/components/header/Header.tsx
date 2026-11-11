@@ -18,8 +18,8 @@ function Header() {
 
                     {/* menu bên phải */}
                     <div className="nav-right d-flex align-items-center gap-3">
-                        <div className="d-flex align-items-center gap-2 border-start ps-3 ms-2">
-                            {/* Sửa lỗi merge: Đặt điều kiện nếu CHƯA đăng nhập thì hiện 2 nút này */}
+                        <div className="d-flex align-items-center gap-2 ps-3 ms-2">
+                            {/*Đặt điều kiện nếu CHƯA đăng nhập thì hiện 2 nút này */}
                             {!isAuthenticated && (
                                 <>
                                     <Link to="/login" className="btn-box login-btn">

@@ -10,6 +10,10 @@ import HomePage from "./pages/homePage/HomePage";
 import LiveScores from "./pages/LiveScores/LiveScores";
 import MatchDetail from "./pages/MatchDetail/MatchDetail";
 import StandingsPage from './pages/StandingsPage/StandingsPage';
+import SavedArticles from './pages/SavedArticles/SavedArticles';
+import Login from './pages/login/Login';
+import Register from './pages/register/Register';
+import Profile from './pages/profile/Profile';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
@@ -27,6 +31,10 @@ function App() {
                         <Route path="/live-scores" element={<LiveScores />} />
                         <Route path="/match-detail" element={<MatchDetail />} />
                         <Route path="/standings" element={<StandingsPage />} />
+                        <Route path="/saved-articles" element={<SavedArticles />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/profile" element={<Profile />} />
                     </Routes>
                 </div>
 
