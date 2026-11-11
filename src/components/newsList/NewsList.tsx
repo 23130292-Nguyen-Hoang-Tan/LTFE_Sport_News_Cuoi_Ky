@@ -1,5 +1,12 @@
-import NewsItem from "./NewsItem";
+import NewsItem from "../newsItem/NewsItem.tsx";
 import "./NewsList.css";
+
+interface NewsListProps {
+    title?: string;
+    data?: any[];
+    columns?: 1 | 2 | 3 | 4;
+    variant?: "grid" | "horizontal" | "compact";
+}
 
 const newsData: any[] = [
     {
@@ -77,20 +84,38 @@ const newsData: any[] = [
 
 ];
 
-export default function NewsList() {
+export default function NewsList({
+    title = "LATEST",
+    data = newsData,
+    columns = 1, variant}:NewsListProps) {
+    //hiển thị 1 newsItem
+    const getVariant = (): "grid" | "horizontal" | "compact" => {
+        if (variant) return variant;
+        if (columns > 1) return "grid";
+        return "horizontal";
+    };
+    const getColClass = () => {
+        switch (columns) {
+            case 3: return "col-12 col-md-4"; // 1 dòng 3 bài
+            default: return "col-12";          // 1 dòng 1 bài
+        }
+    };
+    const currentVariant = getVariant();
     return (
         <div className="news-list-wrapper">
-            {/* lasted */}
+            {/* tiêu đề */}
             <div className="latest-header position-relative mb-2">
                 <div className="latest-tab d-inline-flex align-items-center text-white fw-bold px-3 py-1 fs-6">
-                    LATEST
+                    {title}
                 </div>
             </div>
 
             {/* danh sách newsItem */}
-            <div className="news-items-container">
-                {newsData.map((item) => (
-                    <NewsItem key={item.id} news={item} />
+            <div className="news-items-container row g-3">
+                {data.map((item) => (
+                    <div className={getColClass()} key={item.id}>
+                        <NewsItem news={item} variant={currentVariant} />
+                    </div>
                 ))}
             </div>
         </div>

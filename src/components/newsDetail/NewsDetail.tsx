@@ -10,7 +10,6 @@ export default function NewsDetail() {
                 <span className="separator">&gt;</span>
                 <Link to="#">Bóng đá Việt Nam</Link>
             </div>
-
             {/* tiêu đề */}
             <h1 className="news-title">
                 CĐV ĐNÁ đồng loạt nhắc tên Việt Nam sau địa chấn của U23 Singapore tại Pleiku
@@ -30,10 +29,10 @@ export default function NewsDetail() {
 
                 {/* nút chia sẻ + tăng giảm cỡ chữ */}
                 <div className="news-actions">
-                    <a href="#" className="btn-action-icon" title="Twitter"><i className="bi bi-twitter"></i></a>
-                    <a href="#" className="btn-action-icon" title="Facebook"><i className="bi bi-facebook"></i></a>
-                    <a href="#" className="btn-action-icon" title="Zalo"><b>Z</b></a>
-                    <a href="#" className="btn-action-icon" title="In bài viết"><i className="bi bi-printer"></i></a>
+                    <Link to="#" className="btn-action-icon" title="Twitter"><i className="bi bi-twitter"></i></Link>
+                    <Link to="#" className="btn-action-icon" title="Facebook"><i className="bi bi-facebook"></i></Link>
+                    <Link to="#" className="btn-action-icon" title="Zalo"><b>Z</b></Link>
+                    <Link to="#" className="btn-action-icon" title="In bài viết"><i className="bi bi-printer"></i></Link>
                     <button className="btn-font-size ms-1">A</button>
                     <button className="btn-font-size">A<sup>+</sup></button>
                 </div>
