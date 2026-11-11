@@ -1,8 +1,9 @@
 import "./NewsItem.css";
 import { Link } from "react-router-dom";
+import type { NewsType } from "../../data/news.ts";
 
 interface NewsItemProps {
-    news: any;
+    news: NewsType;
     variant?: "grid" | "horizontal" | "compact";
 }
 

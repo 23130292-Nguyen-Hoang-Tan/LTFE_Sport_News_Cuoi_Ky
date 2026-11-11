@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import {comments} from "../../data/comments.ts";
+import CommentItem from "./CommentItem.tsx";
 import './NewsComment.css';
 
 export default function NewsComments() {
@@ -16,7 +18,16 @@ export default function NewsComments() {
         Vui lòng <Link to="/login" className="login-link fw-bold">Đăng nhập</Link> để bình luận
     </p>
     </div>
+            <div className="comments-list mb-3">
+                {comments.map((comment) => (
+                    <CommentItem key={comment.id} comment={comment} />
+                ))}
+            </div>
 
+            {/*đếm số lượng */}
+            <div className="text-end text-muted mb-3" style={{ fontSize: '13px' }}>
+                Hiển thị <b>{comments.length}/{comments.length}</b>
+            </div>
     {/* báo cáo nội dung/khiếu nại bản quyền */}
     <div className="d-flex justify-content-end">
     <button className="btn-report">
