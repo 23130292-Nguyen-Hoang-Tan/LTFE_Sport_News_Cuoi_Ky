@@ -1,0 +1,53 @@
+/*tiện ích bóng đá */
+.utility-list {
+    background-color: #f1f5f9;
+    border-top: 1px solid #0b4a7d;
+}
+
+.utility-item {
+    color: #222;
+    font-size: 16px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.utility-item:not(:last-child) {
+    margin-bottom: 16px;
+}
+
+.utility-item:hover {
+    color: #0b4a7d;
+}
+
+.utility-icon {
+    font-size: 22px;
+    color: #1e4e8c;
+    width: 28px;
+    text-align: center;
+}
+
+/*liên kết hữu ích */
+.useful-links-widget {
+    border: 1px solid #e0e0e0;
+    border-top: 2px solid #b91c1c;
+    background-color: #fff;
+}
+
+.useful-header {
+    color: #b91c1c;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.useful-item {
+    background-color: #f5f5f5;
+    color: #222;
+    font-size: 15px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.useful-item:hover {
+    background-color: #ebebeb;
+    color: #b91c1c;
+}

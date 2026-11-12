@@ -4,6 +4,7 @@ import Footer from '../../components/footer/Footer';
 import NewsDetail from '../../components/newsDetail/NewsDetail';
 import NewsList from "../../components/newsList/NewsList.tsx"
 import "./NewsDetailPage.css";
+import Sidebar from "../../components/sidebar/Sidebar.tsx";
 
 export default function NewsDetailPage() {
     return (
@@ -14,7 +15,7 @@ export default function NewsDetailPage() {
             <main className="main-content site-layout py-4 px-3">
                 <div className="row g-4">
                     {/* cột trái */}
-                    <div className="col-12 col-lg-8">
+                    <div className="col-12 col-lg-9">
                         <NewsDetail />
                         {/*news trending*/}
                         <div className="mt-5">
@@ -50,8 +51,17 @@ export default function NewsDetailPage() {
 
 
                     {/* cột phải */}
-                    <div className="col-12 col-lg-4">
-
+                    <div className="col-12 col-lg-3">
+                        <Sidebar/>
+                        {/*news nổi bật*/}
+                        <div className="mt-5">
+                            <NewsList
+                                title="Nổi bật"
+                                columns={1}
+                                variant="compact"
+                                limit={4}
+                            />
+                        </div>
                     </div>
                 </div>
             </main>
