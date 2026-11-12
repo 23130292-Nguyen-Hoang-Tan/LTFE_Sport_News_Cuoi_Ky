@@ -1,6 +1,3 @@
-import Header from '../../components/header/Header';
-import Navbar from '../../components/navbar/Navbar';
-import Footer from '../../components/footer/Footer';
 import NewsDetail from '../../components/newsDetail/NewsDetail';
 import NewsList from "../../components/newsList/NewsList.tsx"
 import "./NewsDetailPage.css";
@@ -9,9 +6,6 @@ import Sidebar from "../../components/sidebar/Sidebar.tsx";
 export default function NewsDetailPage() {
     return (
         <div className="site-wrapper">
-            <Header />
-            <Navbar />
-
             <main className="main-content site-layout py-4 px-3">
                 <div className="row g-4">
                     {/* cột trái */}
@@ -65,8 +59,6 @@ export default function NewsDetailPage() {
                     </div>
                 </div>
             </main>
-
-            <Footer />
         </div>
     );
 }
