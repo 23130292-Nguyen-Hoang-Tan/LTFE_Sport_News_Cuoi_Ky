@@ -8,13 +8,14 @@ interface NewsListProps {
     data?: NewsType[];
     columns?: 1 | 3 ;
     variant?: "grid" | "horizontal" | "compact";
+    limit?: number;
 }
 
 
 export default function NewsList({
     title = "LATEST",
     data = listNews,
-    columns = 1, variant}:NewsListProps) {
+    columns = 1, variant, limit}: NewsListProps) {
     //hiển thị 1 newsItem
     const getVariant = (): "grid" | "horizontal" | "compact" => {
         if (variant) return variant;
@@ -26,6 +27,8 @@ export default function NewsList({
         return "col-12";
     };
     const currentVariant = getVariant();
+    //giới hạn số tin hiển thị
+    const displayList = limit ? data.slice(0, limit) : data;
     return (
         <div className="news-list-wrapper">
             {/* tiêu đề */}
@@ -37,7 +40,7 @@ export default function NewsList({
 
             {/* danh sách newsItem */}
             <div className="news-items-container row g-3">
-                {data.map((item) => (
+                {displayList.map((item) => (
                     <div className={getColClass()} key={item.id}>
                         <NewsItem news={item} variant={currentVariant} />
                     </div>
