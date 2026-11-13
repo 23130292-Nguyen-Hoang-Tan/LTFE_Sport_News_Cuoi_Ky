@@ -1,11 +1,13 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import type { User, LoginCredentials, RegisterCredentials } from '../types/auth';
+import type { User, LoginCredentials, RegisterCredentials, UpdateProfileData } from '../types/auth';
 
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
     login: (credentials: LoginCredentials) => Promise<{ success: boolean; message?: string }>;
     register: (credentials: RegisterCredentials) => Promise<{ success: boolean; message?: string }>;
+    updateProfile: (data: UpdateProfileData) => { success: boolean; message?: string };
+    changePassword: (oldPass: string, newPass: string) => { success: boolean; message?: string };
     logout: () => void;
 }
 
@@ -71,7 +73,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const login = async ({ email, password, remember = true }: LoginCredentials): Promise<{ success: boolean; message?: string }> => {
-        // Giả lập độ trễ mạng nhẹ (300ms) để giao diện có hiệu ứng tải tự nhiên
         await new Promise((resolve) => setTimeout(resolve, 300));
 
         try {
@@ -170,6 +171,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    // Cập nhật thông tin hồ sơ người dùng
+    const updateProfile = (data: UpdateProfileData): { success: boolean; message?: string } => {
+        if (!user) {
+            return { success: false, message: 'Bạn chưa đăng nhập.' };
+        }
+
+        try {
+            const updatedUser: User = {
+                ...user,
+                name: data.name?.trim() || user.name,
+                phone: data.phone?.trim() ?? user.phone,
+                avatar: data.avatar?.trim() || user.avatar
+            };
+
+            setUser(updatedUser);
+
+            // Cập nhật vào session/local storage
+            if (localStorage.getItem(CURRENT_USER_KEY)) {
+                localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updatedUser));
+            }
+            if (sessionStorage.getItem(CURRENT_USER_KEY)) {
+                sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updatedUser));
+            }
+
+            // Đồng bộ vào mảng registered users
+            const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
+            if (rawUsers) {
+                const list: Array<User & { password: string }> = JSON.parse(rawUsers);
+                const index = list.findIndex(u => u.id === user.id || u.email === user.email);
+                if (index !== -1) {
+                    list[index] = { ...list[index], ...updatedUser };
+                    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(list));
+                }
+            }
+
+            return { success: true, message: 'Cập nhật thông tin thành công!' };
+        } catch {
+            return { success: false, message: 'Không thể cập nhật thông tin.' };
+        }
+    };
+
+    // Đổi mật khẩu tài khoản
+    const changePassword = (oldPass: string, newPass: string): { success: boolean; message?: string } => {
+        if (!user) {
+            return { success: false, message: 'Bạn chưa đăng nhập.' };
+        }
+
+        try {
+            const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
+            const list: Array<User & { password: string }> = rawUsers ? JSON.parse(rawUsers) : DEFAULT_USERS;
+
+            const targetUser = list.find(u => u.email.toLowerCase() === user.email.toLowerCase());
+            if (!targetUser || targetUser.password !== oldPass) {
+                return { success: false, message: 'Mật khẩu hiện tại không đúng.' };
+            }
+
+            targetUser.password = newPass;
+            localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(list));
+
+            return { success: true, message: 'Đổi mật khẩu thành công!' };
+        } catch {
+            return { success: false, message: 'Lỗi khi đổi mật khẩu.' };
+        }
+    };
+
     const logout = () => {
         setUser(null);
         localStorage.removeItem(CURRENT_USER_KEY);
@@ -183,6 +249,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 isAuthenticated: !!user,
                 login,
                 register,
+                updateProfile,
+                changePassword,
                 logout
             }}
         >

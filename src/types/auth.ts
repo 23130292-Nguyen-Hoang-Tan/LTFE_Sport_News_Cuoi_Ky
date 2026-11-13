@@ -20,3 +20,9 @@ export interface RegisterCredentials {
     password: string;
     confirmPassword?: string;
 }
+
+export interface UpdateProfileData {
+    name?: string;
+    phone?: string;
+    avatar?: string;
+}
