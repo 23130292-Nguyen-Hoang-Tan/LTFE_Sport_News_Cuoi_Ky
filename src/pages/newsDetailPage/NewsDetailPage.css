@@ -1,0 +1,16 @@
+.btn-load-more {
+    background-color: #f4f4f4;
+    color: #0b4a7d;
+    border: 1px solid #e0e0e0;
+    padding: 10px 0;
+    border-radius: 2px;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.btn-load-more:hover {
+    background-color: #e8e8e8;
+    color: #000;
+}

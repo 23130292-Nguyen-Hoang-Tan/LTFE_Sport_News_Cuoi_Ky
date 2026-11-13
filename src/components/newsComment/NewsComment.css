@@ -1,0 +1,61 @@
+.news-comments-section {
+    padding-top: 16px;
+    border-top: 1px solid #eeeeee;
+}
+
+/* icon + tiêu đề */
+.comments-header {
+    color: #1a3c8b;
+}
+
+.comments-icon {
+    font-size: 20px;
+}
+
+.comments-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #222222;
+}
+
+/* khung bình luận */
+.comment-input-box {
+    background-color: #ffffff;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-size: 14.5px;
+}
+
+.login-link {
+    color: #1a3c8b;
+    text-decoration: none;
+}
+
+.login-link:hover {
+    text-decoration: underline;
+}
+
+/* báo cáo nội dung */
+.btn-report {
+    background-color: #b70000;
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 24px;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-report:hover {
+    background-color: #900000;
+}
+
+.btn-report:active {
+    transform: scale(0.98);
+}

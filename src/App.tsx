@@ -15,6 +15,7 @@ import Login from './pages/login/Login';
 import Register from './pages/register/Register';
 import Profile from './pages/profile/Profile';
 import { AuthProvider } from './context/AuthContext';
+import NewsDetailPage from "./pages/newsDetailPage/NewsDetailPage";
 
 function App() {
     return (
@@ -35,6 +36,7 @@ function App() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
                         <Route path="/profile" element={<Profile />} />
+                        <Route path="/news/:id" element={<NewsDetailPage />} />
                     </Routes>
                 </div>
 

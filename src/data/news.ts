@@ -1,7 +1,18 @@
-import NewsItem from "./NewsItem";
-import "./NewsList.css";
+export interface NewsType {
+    id: string | number;
+    title: string;
+    description?: string;
+    summary?: string;
+    content?: string;
+    imageUrl: string;
+    category?: string;
+    createdAt?: string;
+    author?: string;
+    viewsCount?: number;
+    commentsCount?: number;
+}
 
-const newsData: any[] = [
+export const listNews: NewsType[] = [
     {
         id: 1,
         title: "Hậu vệ Thái Lan làm nên lịch sử tại Bundesliga, cổ động viên phát cuồng",
@@ -73,26 +84,5 @@ const newsData: any[] = [
         commentsCount: 1,
         description: "U23 Qatar vừa đưa ra quyết định quan trọng khi không triệu tập dàn sao tham dự World Cup.",
         imageUrl: "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=500&q=80",
-    },
-
+    }
 ];
-
-export default function NewsList() {
-    return (
-        <div className="news-list-wrapper">
-            {/* lasted */}
-            <div className="latest-header position-relative mb-2">
-                <div className="latest-tab d-inline-flex align-items-center text-white fw-bold px-3 py-1 fs-6">
-                    LATEST
-                </div>
-            </div>
-
-            {/* danh sách newsItem */}
-            <div className="news-items-container">
-                {newsData.map((item) => (
-                    <NewsItem key={item.id} news={item} />
-                ))}
-            </div>
-        </div>
-    );
-}
