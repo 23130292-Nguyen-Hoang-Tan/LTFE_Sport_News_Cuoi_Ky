@@ -33,13 +33,9 @@
     white-space: nowrap;
 }
 
-.nav-link-item:hover,
-.nav-link-item.active {
+/* Khi hover chuột vào tất cả các mục menu sẽ chuyển sang màu vàng */
+.nav-link-item:hover {
     color: #ffcc00;
-}
-
-.nav-link-item.highlight {
-    color: #ffeb3b;
 }
 
 .nav-dropdown {
@@ -73,7 +69,7 @@
     text-decoration: none;
     display: flex;
     align-items: center;
-    font-size: 14px; /* Tăng nhẹ font trong dropdown */
+    font-size: 14px;
     font-weight: 500;
     text-align: left;
     width: 100%;
@@ -155,7 +151,6 @@
     align-items: center;
     gap: 20px;
 }
-
 
 .bookmark-btn {
     background-color: rgba(255, 255, 255, 0.15);

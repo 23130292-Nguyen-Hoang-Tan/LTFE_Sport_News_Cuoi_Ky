@@ -10,12 +10,12 @@ export default function Navbar() {
             <div className="navbar-container">
                 {/* Trang chủ */}
                 <div className="nav-left">
-                    <Link to="/" className="nav-link-item active">TRANG CHỦ</Link>
+                    <Link to="/" className="nav-link-item">TRANG CHỦ</Link>
 
                     {/* Bóng đá */}
                     <div className="nav-dropdown">
-                        <Link to="#" className="nav-link-item highlight">
-                            ⚽ BÓNG ĐÁ <i className="bi bi-chevron-down ms-1"></i>
+                        <Link to="#" className="nav-link-item">
+                             BÓNG ĐÁ <i className="bi bi-chevron-down ms-1"></i>
                         </Link>
                         <div className="dropdown-content">
                             <Link to="/live-scores" className="text-danger fw-bold">Tỉ số trực tiếp</Link>
@@ -39,7 +39,20 @@ export default function Navbar() {
                         </div>
                     </div>
 
-                    <Link to="#" className="nav-link-item">ESPORTS</Link>
+                    {/* Esports có menu thả xuống */}
+                    <div className="nav-dropdown">
+                        <Link to="#" className="nav-link-item">
+                            ESPORTS <i className="bi bi-chevron-down ms-1"></i>
+                        </Link>
+                        <div className="dropdown-content">
+                            <Link to="/esports/lol">Liên Minh Huyền Thoại (LoL)</Link>
+                            <Link to="/esports/dota2">Dota 2</Link>
+                            <Link to="/esports/cs2">CS2 (Counter-Strike)</Link>
+                            <Link to="/esports/valorant">Valorant</Link>
+                            <Link to="/esports/pubg">PUBG / Mobile</Link>
+                            <Link to="/esports/fifa">FC Online (FIFA)</Link>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Tìm kiếm + lọc */}
