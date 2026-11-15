@@ -227,3 +227,11 @@
   border-radius: 2px;
   display: inline-block;
 }
+
+.event-icon.icon-yellow-card {
+  width: 10px;
+  height: 14px;
+  background-color: #f39c12;
+  border-radius: 2px;
+  display: inline-block;
+}
