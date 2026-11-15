@@ -6,6 +6,10 @@ export interface User {
     avatar?: string;
     phone?: string;
     createdAt?: string;
+    bio?: string;
+    favoriteSports?: string[];
+    favoriteTeam?: string;
+    location?: string;
 }
 
 export interface LoginCredentials {
@@ -25,4 +29,8 @@ export interface UpdateProfileData {
     name?: string;
     phone?: string;
     avatar?: string;
+    bio?: string;
+    favoriteSports?: string[];
+    favoriteTeam?: string;
+    location?: string;
 }
