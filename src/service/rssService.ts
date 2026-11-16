@@ -33,15 +33,22 @@ export async function fetchTheThao247Rss(): Promise<NewsType[]> {
             // tách lấy link ảnh từ thẻ img
             const imgRegex = /<img[^>]+src="([^">]+)"/;
             const match = item.description ? item.description.match(imgRegex) : null;
-            const extractedImage = item.thumbnail || (match ? match[1] : 'https://via.placeholder.com/400x250');
+            const rawImage = item.thumbnail || (match ? match[1] : 'https://via.placeholder.com/400x250');
+            //lấy ảnh gốc
+            const extractedImage = rawImage.replace(/\/resize_\d+x\d+\//, '/');
 
             // lấy mô tả
             const cleanText = item.description
                 ? item.description.replace(/<[^>]*>?/gm, '').trim()
                 : '';
 
+            //lấy id bài viết giống thethao247
+            const slug = item.guid
+                ? item.guid.replace('https://thethao247.vn/', '').replace('.html', '')
+                : String(index + 1);
+
             return {
-                id: item.guid || index + 1,
+                id: slug,
                 title: item.title,
                 description: cleanText,
                 summary: cleanText,

@@ -1,36 +1,39 @@
 import "./FeatureNews.css";
 import { Link } from "react-router-dom";
-import mainImg from "../../assets/images/feature.png";
+import type { NewsType } from "../../data/news";
 
-function FeatureNews() {
+interface FeatureNewsProps {
+    news?: NewsType;
+}
+
+function FeatureNews({ news }: FeatureNewsProps) {
     return (
         <div className="news-card">
             {/* ảnh */}
-            <Link to={'/news/1'} className="news-thumb d-block">
-                <img src={mainImg} alt="Messi & Suarez" className="w-100" />
+            <Link to={'/news/${news.id}'} className="news-thumb d-block">
+                <img src={news?.imageUrl} alt={news?.title} className="w-100" />
             </Link>
 
             {/* nội dung bài viết */}
             <div className="news-content pt-3">
-                <span className="news-cate">BÓNG ĐÁ QUỐC TẾ</span>
+                <span className="news-cate">{news?.category?.toUpperCase()}</span>
 
                 <h2 className="news-title mt-1 mb-2">
-                    <a href="#">
-                        Trực tiếp bóng đá <span className="highlight">NEW ENGLAND REVOLUTION 1-2 INTER MIAMI</span>: Messi tỏa sáng
-                    </a>
-                    <span className="badge-live ms-2">LIV</span>
+                    <Link to={`/news/${encodeURIComponent(String(news?.id))}`}>
+                        {news?.title}
+                    </Link>
                 </h2>
 
                 <p className="news-desc text-secondary">
-                    (Trực tiếp bóng đá) - New England đang thăng hoa với chuỗi chiến thắng ấn tượng, nhưng Inter Miami cùng Lionel Messi quyết tâm tìm lại niềm vui chiến thắng tại Vòng 13 MLS.
+                    {news?.description}
                 </p>
 
                 <div className="news-meta d-flex align-items-center gap-3 text-muted fs-7">
           <span className="d-flex align-items-center gap-1">
-            <i className="bi bi-person-circle text-danger"></i> Hin
+            <i className="bi bi-person-circle text-danger"></i> {news?.author}
           </span>
                     <span className="d-flex align-items-center gap-1">
-            <i className="bi bi-chat-dots"></i> 3
+            <i className="bi bi-chat-dots"></i> {news?.commentsCount}
           </span>
                 </div>
             </div>
