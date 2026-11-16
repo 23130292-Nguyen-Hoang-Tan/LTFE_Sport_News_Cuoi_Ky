@@ -1,37 +1,140 @@
+import { useState, useEffect } from 'react';
 import './MatchDetail.css';
 
 export default function MatchDetail() {
-    // Dữ liệu mẫu (Mock data) tĩnh mô phỏng thông tin trận đấu
-    const matchData = {
-        tournament: "Ngoại Hạng Anh (Premier League) - Vòng 25",
-        status: "Đang diễn ra",
-        minute: "78'",
-        homeTeam: {
-            name: "Manchester United",
-            logo: "https://via.placeholder.com/60",
-            score: 2,
-            scorers: ["Bruno Fernandes 24'", "Rashford 55'"]
-        },
-        awayTeam: {
-            name: "Arsenal",
-            logo: "https://via.placeholder.com/60",
-            score: 1,
-            scorers: ["Saka 12'"]
-        },
-        stats: [
-            { label: "Tỷ lệ kiểm soát bóng", home: "52%", away: "48%" },
-            { label: "Sút dứt điểm", home: "14", away: "11" },
-            { label: "Sút trúng đích", home: "6", away: "4" },
-            { label: "Phạm lỗi", home: "9", away: "12" },
-            { label: "Thẻ vàng", home: "2", away: "3" },
-        ],
-        events: [
-            { time: "12'", type: "goal", team: "away", text: "Vào! Bukayo Saka mở tỷ số cho Arsenal." },
-            { time: "24'", type: "goal", team: "home", text: "Vào! Bruno Fernandes gỡ hòa 1-1 cho Man Utd." },
-            { time: "55'", type: "goal", team: "home", text: "Vào! Marcus Rashford nâng tỷ số lên 2-1." },
-            { time: "68'", type: "card", team: "away", text: "Thẻ vàng cho Declan Rice (Arsenal)." }
-        ]
-    };
+    const [matchData, setMatchData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchMatchDetail = async () => {
+            try {
+                setLoading(true);
+                // ID trận đấu mẫu (bạn có thể thay đổi tùy ý)
+                const matchId = 718306; 
+                
+                const response = await fetch(`https://v3.football.api-sports.io/fixtures?id=${matchId}`, {
+                    method: 'GET',
+                    headers: {
+                        'x-rapidapi-key': 'c27b9be1da61631964ca91448f39dbb8',
+                        'x-rapidapi-host': 'v3.football.api-sports.io'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!data.response || data.response.length === 0) {
+                    throw new Error('Không tìm thấy thông tin trận đấu.');
+                }
+
+                const item = data.response[0];
+                const homeId = item.teams.home.id;
+
+                // Hàm gom nhóm người ghi bàn (Ví dụ: A. Tamm ⚽ x12 thay vì lặp 12 dòng)
+                const processScorers = (eventsList: any[], teamId: number) => {
+                    const goalMap: { [playerName: string]: number } = {};
+
+                    eventsList.forEach((ev: any) => {
+                        if (ev.type === 'Goal' && ev.team.id === teamId) {
+                            const name = ev.player.name || 'Cầu thủ';
+                            goalMap[name] = (goalMap[name] || 0) + 1;
+                        }
+                    });
+
+                    return Object.keys(goalMap).map(name => {
+                        const count = goalMap[name];
+                        return count > 1 ? `${name} ⚽ x${count}` : `${name} ⚽`;
+                    });
+                };
+
+                const homeScorers = processScorers(item.events || [], homeId);
+                const awayScorers = processScorers(item.events || [], item.teams.away.id);
+
+                // Lọc danh sách diễn biến trận đấu (Timeline)
+                const events = (item.events || []).map((ev: any) => {
+                    const isHome = ev.team.id === homeId;
+                    let text = '';
+                    if (ev.type === 'Goal') {
+                        text = `Vào! ${ev.player.name} ghi bàn (${ev.time.elapsed}')`;
+                    } else if (ev.type === 'Card') {
+                        text = `${ev.detail || 'Thẻ phạt'} cho ${ev.player.name} (${ev.time.elapsed}')`;
+                    } else {
+                        text = `${ev.type} - ${ev.player.name} (${ev.time.elapsed}')`;
+                    }
+
+                    return {
+                        time: `${ev.time.elapsed}'`,
+                        type: ev.type === 'Goal' ? 'goal' : 'card',
+                        team: isHome ? 'home' : 'away',
+                        text: text
+                    };
+                });
+
+                // Chuyển đổi số liệu thống kê (Stats)
+                let possessionHome = "50%", possessionAway = "50%";
+                let shotsHome = "0", shotsAway = "0";
+                let shotsOnTargetHome = "0", shotsOnTargetAway = "0";
+                let foulsHome = "0", foulsAway = "0";
+                let yellowHome = "0", yellowAway = "0";
+
+                if (item.statistics && item.statistics.length === 2) {
+                    const parseStat = (statList: any[], typeName: string) => {
+                        const found = statList.find((s: any) => s.type === typeName);
+                        return found && found.value !== null ? String(found.value) : "0";
+                    };
+
+                    possessionHome = parseStat(item.statistics[0].statistics, "Ball Possession");
+                    possessionAway = parseStat(item.statistics[1].statistics, "Ball Possession");
+                    shotsHome = parseStat(item.statistics[0].statistics, "Total Shots");
+                    shotsAway = parseStat(item.statistics[1].statistics, "Total Shots");
+                    shotsOnTargetHome = parseStat(item.statistics[0].statistics, "Shots on Goal");
+                    shotsOnTargetAway = parseStat(item.statistics[1].statistics, "Shots on Goal");
+                    foulsHome = parseStat(item.statistics[0].statistics, "Fouls");
+                    foulsAway = parseStat(item.statistics[1].statistics, "Fouls");
+                    yellowHome = parseStat(item.statistics[0].statistics, "Yellow Cards");
+                    yellowAway = parseStat(item.statistics[1].statistics, "Yellow Cards");
+                }
+
+                setMatchData({
+                    tournament: `${item.league.country || ''} - ${item.league.name} (Vòng ${item.league.round || 'N/A'})`,
+                    status: item.fixture.status.long || 'Đang diễn ra',
+                    minute: `${item.fixture.status.elapsed || 0}'`,
+                    homeTeam: {
+                        name: item.teams.home.name,
+                        logo: item.teams.home.logo,
+                        score: item.goals.home ?? 0,
+                        scorers: homeScorers
+                    },
+                    awayTeam: {
+                        name: item.teams.away.name,
+                        logo: item.teams.away.logo,
+                        score: item.goals.away ?? 0,
+                        scorers: awayScorers
+                    },
+                    stats: [
+                        { label: "Tỷ lệ kiểm soát bóng", home: possessionHome, away: possessionAway },
+                        { label: "Sút dứt điểm", home: shotsHome, away: shotsAway },
+                        { label: "Sút trúng đích", home: shotsOnTargetHome, away: shotsOnTargetAway },
+                        { label: "Phạm lỗi", home: foulsHome, away: foulsAway },
+                        { label: "Thẻ vàng", home: yellowHome, away: yellowAway },
+                    ],
+                    events: events
+                });
+
+            } catch (err) {
+                console.error(err);
+                setError('Không thể tải chi tiết trận đấu từ máy chủ API.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMatchDetail();
+    }, []);
+
+    if (loading) return <div className="text-center py-5">Đang tải chi tiết trận đấu...</div>;
+    if (error) return <div className="alert alert-danger text-center m-4">{error}</div>;
+    if (!matchData) return null;
 
     return (
         <div className="match-detail-container">
@@ -43,13 +146,17 @@ export default function MatchDetail() {
                 </span>
             </div>
 
-            {/* Bảng tỷ số chính dạng đối xứng: Người ghi bàn | Đội nhà | Tỉ số | Đội khách | Người ghi bàn */}
+            {/* Bảng tỷ số chính dạng đối xứng */}
             <div className="match-scoreboard-symmetric">
                 {/* 1. Người ghi bàn đội nhà (Cột trái) */}
                 <div className="scorers-side home-scorers">
-                    {matchData.homeTeam.scorers.map((s, idx) => (
-                        <span key={idx} className="scorer-item"> {s}</span>
-                    ))}
+                    {matchData.homeTeam.scorers.length > 0 ? (
+                        matchData.homeTeam.scorers.map((s: string, idx: number) => (
+                            <div key={idx} className="scorer-item">{s}</div>
+                        ))
+                    ) : (
+                        <span className="text-muted small">Chưa có bàn thắng</span>
+                    )}
                 </div>
 
                 {/* 2. Đội nhà (Logo + Tên) */}
@@ -73,9 +180,13 @@ export default function MatchDetail() {
 
                 {/* 5. Người ghi bàn đội khách (Cột phải) */}
                 <div className="scorers-side away-scorers">
-                    {matchData.awayTeam.scorers.map((s, idx) => (
-                        <span key={idx} className="scorer-item">{s}</span>
-                    ))}
+                    {matchData.awayTeam.scorers.length > 0 ? (
+                        matchData.awayTeam.scorers.map((s: string, idx: number) => (
+                            <div key={idx} className="scorer-item">{s}</div>
+                        ))
+                    ) : (
+                        <span className="text-muted small">Chưa có bàn thắng</span>
+                    )}
                 </div>
             </div>
 
@@ -85,12 +196,16 @@ export default function MatchDetail() {
                 <div className="match-card">
                     <h3><i className="bi bi-clock-history me-2"></i>Diễn biến chính</h3>
                     <div className="timeline-list">
-                        {matchData.events.map((ev, index) => (
-                            <div key={index} className={`timeline-item ${ev.team}`}>
-                                <span className="time-badge">{ev.time}</span>
-                                <span className="event-text">{ev.text}</span>
-                            </div>
-                        ))}
+                        {matchData.events.length > 0 ? (
+                            matchData.events.map((ev: any, index: number) => (
+                                <div key={index} className={`timeline-item ${ev.team}`}>
+                                    <span className="time-badge">{ev.time}</span>
+                                    <span className="event-text">{ev.text}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-muted text-center py-3">Chưa có sự kiện nào trong trận đấu.</p>
+                        )}
                     </div>
                 </div>
 
@@ -98,13 +213,17 @@ export default function MatchDetail() {
                 <div className="match-card">
                     <h3><i className="bi bi-bar-chart-fill me-2"></i>Thống kê trận đấu</h3>
                     <div className="stats-list">
-                        {matchData.stats.map((st, index) => (
-                            <div key={index} className="stat-row">
-                                <span className="stat-val home-val">{st.home}</span>
-                                <span className="stat-label">{st.label}</span>
-                                <span className="stat-val away-val">{st.away}</span>
-                            </div>
-                        ))}
+                        {matchData.stats.length > 0 ? (
+                            matchData.stats.map((st: any, index: number) => (
+                                <div key={index} className="stat-row">
+                                    <span className="stat-val home-val">{st.home}</span>
+                                    <span className="stat-label">{st.label}</span>
+                                    <span className="stat-val away-val">{st.away}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-muted text-center py-3 m-0">Trận đấu này không có số liệu thống kê chi tiết.</p>
+                        )}
                     </div>
                 </div>
             </div>

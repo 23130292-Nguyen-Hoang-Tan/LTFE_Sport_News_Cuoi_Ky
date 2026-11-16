@@ -39,7 +39,7 @@
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* Bảng tỉ số đối xứng 5 cột */
+/* Khung tỉ số đối xứng - Giữ vị trí cố định, không bị dãn lố */
 .match-scoreboard-symmetric {
     background: linear-gradient(135deg, #1a3c8b, #0d2358);
     color: #ffffff;
@@ -54,26 +54,42 @@
     text-align: center;
 }
 
-/* Danh sách người ghi bàn 2 bên */
+/* Khu vực chứa tên người ghi bàn có thanh cuộn mượt mà nếu quá dài */
 .scorers-side {
     font-size: 12px;
     color: #d1d5db;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    max-height: 140px; /* Giới hạn chiều cao tối đa để không làm vỡ khung */
+    overflow-y: auto;  /* Tự động hiện thanh cuộn nếu danh sách quá dài */
+    padding-right: 5px;
+}
+
+/* Tùy chỉnh thanh cuộn nhỏ gọn cho đẹp */
+.scorers-side::-webkit-scrollbar {
+    width: 4px;
+}
+.scorers-side::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
 }
 
 .home-scorers {
     text-align: right;
-    padding-right: 10px;
+    align-items: flex-end;
 }
 
 .away-scorers {
     text-align: left;
-    padding-left: 10px;
+    align-items: flex-start;
 }
 
 .scorer-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
     white-space: nowrap;
 }
 

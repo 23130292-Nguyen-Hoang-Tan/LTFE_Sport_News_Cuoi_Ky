@@ -159,8 +159,8 @@ export default function LiveScores() {
               <div className="team home">
                 <span className="team-name">{match.homeTeam.name}</span>
                 <div className="card-counters">
-                  {match.homeTeam.yellowCards > 0 && <span className="badge bg-warning text-dark me-1">{match.homeTeam.yellowCards}🟨</span>}
-                  {match.homeTeam.redCards > 0 && <span className="badge bg-danger me-1">{match.homeTeam.redCards}🟥</span>}
+                  {match.homeTeam.yellowCards > 0 && <span className="badge text-dark me-1">{match.homeTeam.yellowCards}🟨</span>}
+                  {match.homeTeam.redCards > 0 && <span className="badge me-1">{match.homeTeam.redCards}🟥</span>}
                 </div>
                 <img src={match.homeTeam.logo} alt="" />
               </div>
@@ -177,8 +177,8 @@ export default function LiveScores() {
               <div className="team away">
                 <img src={match.awayTeam.logo} alt="" />
                 <div className="card-counters">
-                  {match.awayTeam.yellowCards > 0 && <span className="badge bg-warning text-dark ms-1">{match.awayTeam.yellowCards}🟨</span>}
-                  {match.awayTeam.redCards > 0 && <span className="badge bg-danger ms-1">{match.awayTeam.redCards}🟥</span>}
+                  {match.awayTeam.yellowCards > 0 && <span className="badge text-dark ms-1">{match.awayTeam.yellowCards}🟨</span>}
+                  {match.awayTeam.redCards > 0 && <span className="badge ms-1">{match.awayTeam.redCards}🟥</span>}
                 </div>
                 <span className="team-name">{match.awayTeam.name}</span>
               </div>
