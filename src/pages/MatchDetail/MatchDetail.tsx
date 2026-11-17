@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import './MatchDetail.css';
 
 export default function MatchDetail() {
+    // Lấy ID từ URL thông qua React Router (nếu có)
+    const { id } = useParams();
+    
     const [matchData, setMatchData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -10,9 +14,29 @@ export default function MatchDetail() {
         const fetchMatchDetail = async () => {
             try {
                 setLoading(true);
-                // ID trận đấu mẫu (bạn có thể thay đổi tùy ý)
-                const matchId = 718306; 
                 
+                let matchId = id;
+
+                // LOGIC XỬ LÝ KHI BẤM TRỰC TIẾP "CHI TIẾT TRẬN ĐẤU" (Không có ID trên URL)
+                if (!matchId) {
+                    // Gọi tạm danh sách Live để lấy đại ID của trận đầu tiên đang diễn ra làm mặc định
+                    const liveRes = await fetch('https://v3.football.api-sports.io/fixtures?live=all', {
+                        method: 'GET',
+                        headers: {
+                            'x-rapidapi-key': 'c27b9be1da61631964ca91448f39dbb8',
+                            'x-rapidapi-host': 'v3.football.api-sports.io'
+                        }
+                    });
+                    const liveData = await liveRes.json();
+                    
+                    if (liveData.response && liveData.response.length > 0) {
+                        matchId = liveData.response[0].fixture.id; // Lấy ID trận đầu tiên
+                    } else {
+                        matchId = "718306"; // Fallback về ID mẫu nếu không có trận nào trực tiếp
+                    }
+                }
+                
+                // Gọi API lấy chi tiết trận đấu theo matchId đã xác định
                 const response = await fetch(`https://v3.football.api-sports.io/fixtures?id=${matchId}`, {
                     method: 'GET',
                     headers: {
@@ -30,7 +54,7 @@ export default function MatchDetail() {
                 const item = data.response[0];
                 const homeId = item.teams.home.id;
 
-                // Hàm gom nhóm người ghi bàn (Ví dụ: A. Tamm ⚽ x12 thay vì lặp 12 dòng)
+                // Hàm gom nhóm người ghi bàn (Ví dụ: A. Tamm ⚽ x12)
                 const processScorers = (eventsList: any[], teamId: number) => {
                     const goalMap: { [playerName: string]: number } = {};
 
@@ -130,7 +154,7 @@ export default function MatchDetail() {
         };
 
         fetchMatchDetail();
-    }, []);
+    }, [id]);
 
     if (loading) return <div className="text-center py-5">Đang tải chi tiết trận đấu...</div>;
     if (error) return <div className="alert alert-danger text-center m-4">{error}</div>;

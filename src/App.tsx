@@ -31,6 +31,7 @@ function App() {
                         <Route path="/" element={<HomePage />} />
                         <Route path="/live-scores" element={<LiveScores />} />
                         <Route path="/match-detail" element={<MatchDetail />} />
+                        <Route path="/match-detail/:id" element={<MatchDetail />} />
                         <Route path="/standings" element={<StandingsPage />} />
                         <Route path="/saved-articles" element={<SavedArticles />} />
                         <Route path="/login" element={<Login />} />
