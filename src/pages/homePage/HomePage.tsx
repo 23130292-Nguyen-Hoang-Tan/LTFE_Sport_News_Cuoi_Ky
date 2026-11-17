@@ -23,7 +23,7 @@ export default function HomePage() {
                 <div className="news-container">
                     {/*truyền bài đầu tiên làm tin nổi bật*/}
                     <FeatureNews news={newsList[0]} />
-                    <NewsList/>
+                    <NewsList data={newsList.slice(1)}/>
                 </div>
             </main>
         </div>
