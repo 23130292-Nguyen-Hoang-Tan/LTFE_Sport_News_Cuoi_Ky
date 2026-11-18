@@ -3,176 +3,194 @@ import { useParams } from 'react-router-dom';
 import './MatchDetail.css';
 
 export default function MatchDetail() {
-    // Lấy ID từ URL thông qua React Router (nếu có)
     const { id } = useParams();
     
     const [matchData, setMatchData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchMatchDetail = async () => {
-            try {
-                setLoading(true);
-                
-                let matchId = id;
+    // Tách hàm gọi API riêng để có thể tái sử dụng khi người dùng bấm nút "Làm mới"
+    const fetchMatchDetail = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            
+            let matchId = id;
 
-                // LOGIC XỬ LÝ KHI BẤM TRỰC TIẾP "CHI TIẾT TRẬN ĐẤU" (Không có ID trên URL)
-                if (!matchId) {
-                    // Gọi tạm danh sách Live để lấy đại ID của trận đầu tiên đang diễn ra làm mặc định
-                    const liveRes = await fetch('https://v3.football.api-sports.io/fixtures?live=all', {
-                        method: 'GET',
-                        headers: {
-                            'x-rapidapi-key': 'c27b9be1da61631964ca91448f39dbb8',
-                            'x-rapidapi-host': 'v3.football.api-sports.io'
-                        }
-                    });
-                    const liveData = await liveRes.json();
-                    
-                    if (liveData.response && liveData.response.length > 0) {
-                        matchId = liveData.response[0].fixture.id; // Lấy ID trận đầu tiên
-                    } else {
-                        matchId = "718306"; // Fallback về ID mẫu nếu không có trận nào trực tiếp
-                    }
-                }
-                
-                // Gọi API lấy chi tiết trận đấu theo matchId đã xác định
-                const response = await fetch(`https://v3.football.api-sports.io/fixtures?id=${matchId}`, {
+            // LOGIC XỬ LÝ KHI BẤM TRỰC TIẾP "CHI TIẾT TRẬN ĐẤU" (Không có ID trên URL)
+            if (!matchId) {
+                const liveRes = await fetch('https://v3.football.api-sports.io/fixtures?live=all', {
                     method: 'GET',
                     headers: {
                         'x-rapidapi-key': 'c27b9be1da61631964ca91448f39dbb8',
                         'x-rapidapi-host': 'v3.football.api-sports.io'
                     }
                 });
+                const liveData = await liveRes.json();
+                
+                if (liveData.response && liveData.response.length > 0) {
+                    matchId = liveData.response[0].fixture.id; 
+                } else {
+                    matchId = "718306"; 
+                }
+            }
+            
+            // Gọi API lấy chi tiết trận đấu theo matchId đã xác định
+            const response = await fetch(`https://v3.football.api-sports.io/fixtures?id=${matchId}`, {
+                method: 'GET',
+                headers: {
+                    'x-rapidapi-key': 'c27b9be1da61631964ca91448f39dbb8',
+                    'x-rapidapi-host': 'v3.football.api-sports.io'
+                }
+            });
 
-                const data = await response.json();
+            const data = await response.json();
 
-                if (!data.response || data.response.length === 0) {
-                    throw new Error('Không tìm thấy thông tin trận đấu.');
+            if (!data.response || data.response.length === 0) {
+                throw new Error('Không tìm thấy thông tin trận đấu.');
+            }
+
+            const item = data.response[0];
+            const homeId = item.teams.home.id;
+
+            // Hàm gom nhóm người ghi bàn (Ví dụ: A. Tamm ⚽ x12)
+            const processScorers = (eventsList: any[], teamId: number) => {
+                const goalMap: { [playerName: string]: number } = {};
+
+                eventsList.forEach((ev: any) => {
+                    if (ev.type === 'Goal' && ev.team.id === teamId) {
+                        const name = ev.player.name || 'Cầu thủ';
+                        goalMap[name] = (goalMap[name] || 0) + 1;
+                    }
+                });
+
+                return Object.keys(goalMap).map(name => {
+                    const count = goalMap[name];
+                    return count > 1 ? `${name} ⚽ x${count}` : `${name} ⚽`;
+                });
+            };
+
+            const homeScorers = processScorers(item.events || [], homeId);
+            const awayScorers = processScorers(item.events || [], item.teams.away.id);
+
+            // Lọc danh sách diễn biến trận đấu (Timeline)
+            const events = (item.events || []).map((ev: any) => {
+                const isHome = ev.team.id === homeId;
+                let text = '';
+                if (ev.type === 'Goal') {
+                    text = `Vào! ${ev.player.name} ghi bàn (${ev.time.elapsed}')`;
+                } else if (ev.type === 'Card') {
+                    text = `${ev.detail || 'Thẻ phạt'} cho ${ev.player.name} (${ev.time.elapsed}')`;
+                } else {
+                    text = `${ev.type} - ${ev.player.name} (${ev.time.elapsed}')`;
                 }
 
-                const item = data.response[0];
-                const homeId = item.teams.home.id;
+                return {
+                    time: `${ev.time.elapsed}'`,
+                    type: ev.type === 'Goal' ? 'goal' : 'card',
+                    team: isHome ? 'home' : 'away',
+                    text: text
+                };
+            });
 
-                // Hàm gom nhóm người ghi bàn (Ví dụ: A. Tamm ⚽ x12)
-                const processScorers = (eventsList: any[], teamId: number) => {
-                    const goalMap: { [playerName: string]: number } = {};
+            // Chuyển đổi số liệu thống kê (Stats) linh hoạt hơn với từ khóa (Keywords)
+            let possessionHome = "50%", possessionAway = "50%";
+            let shotsHome = "0", shotsAway = "0";
+            let shotsOnTargetHome = "0", shotsOnTargetAway = "0";
+            let foulsHome = "0", foulsAway = "0";
+            let yellowHome = "0", yellowAway = "0";
 
-                    eventsList.forEach((ev: any) => {
-                        if (ev.type === 'Goal' && ev.team.id === teamId) {
-                            const name = ev.player.name || 'Cầu thủ';
-                            goalMap[name] = (goalMap[name] || 0) + 1;
-                        }
-                    });
-
-                    return Object.keys(goalMap).map(name => {
-                        const count = goalMap[name];
-                        return count > 1 ? `${name} ⚽ x${count}` : `${name} ⚽`;
-                    });
+            if (item.statistics && item.statistics.length === 2) {
+                const parseStat = (statList: any[], keywords: string[]) => {
+                    const found = statList.find((s: any) => keywords.some(kw => s.type.toLowerCase().includes(kw.toLowerCase())));
+                    return found && found.value !== null ? String(found.value) : "0";
                 };
 
-                const homeScorers = processScorers(item.events || [], homeId);
-                const awayScorers = processScorers(item.events || [], item.teams.away.id);
+                possessionHome = parseStat(item.statistics[0].statistics, ["Possession", "Ball"]);
+                possessionAway = parseStat(item.statistics[1].statistics, ["Possession", "Ball"]);
 
-                // Lọc danh sách diễn biến trận đấu (Timeline)
-                const events = (item.events || []).map((ev: any) => {
-                    const isHome = ev.team.id === homeId;
-                    let text = '';
-                    if (ev.type === 'Goal') {
-                        text = `Vào! ${ev.player.name} ghi bàn (${ev.time.elapsed}')`;
-                    } else if (ev.type === 'Card') {
-                        text = `${ev.detail || 'Thẻ phạt'} cho ${ev.player.name} (${ev.time.elapsed}')`;
-                    } else {
-                        text = `${ev.type} - ${ev.player.name} (${ev.time.elapsed}')`;
-                    }
+                shotsHome = parseStat(item.statistics[0].statistics, ["Total Shots", "Shots Total"]);
+                shotsAway = parseStat(item.statistics[1].statistics, ["Total Shots", "Shots Total"]);
 
-                    return {
-                        time: `${ev.time.elapsed}'`,
-                        type: ev.type === 'Goal' ? 'goal' : 'card',
-                        team: isHome ? 'home' : 'away',
-                        text: text
-                    };
-                });
+                shotsOnTargetHome = parseStat(item.statistics[0].statistics, ["Shots on Goal", "On Target"]);
+                shotsOnTargetAway = parseStat(item.statistics[1].statistics, ["Shots on Goal", "On Target"]);
 
-                // Chuyển đổi số liệu thống kê (Stats)
-                let possessionHome = "50%", possessionAway = "50%";
-                let shotsHome = "0", shotsAway = "0";
-                let shotsOnTargetHome = "0", shotsOnTargetAway = "0";
-                let foulsHome = "0", foulsAway = "0";
-                let yellowHome = "0", yellowAway = "0";
+                foulsHome = parseStat(item.statistics[0].statistics, ["Fouls"]);
+                foulsAway = parseStat(item.statistics[1].statistics, ["Fouls"]);
 
-                if (item.statistics && item.statistics.length === 2) {
-                    const parseStat = (statList: any[], typeName: string) => {
-                        const found = statList.find((s: any) => s.type === typeName);
-                        return found && found.value !== null ? String(found.value) : "0";
-                    };
-
-                    possessionHome = parseStat(item.statistics[0].statistics, "Ball Possession");
-                    possessionAway = parseStat(item.statistics[1].statistics, "Ball Possession");
-                    shotsHome = parseStat(item.statistics[0].statistics, "Total Shots");
-                    shotsAway = parseStat(item.statistics[1].statistics, "Total Shots");
-                    shotsOnTargetHome = parseStat(item.statistics[0].statistics, "Shots on Goal");
-                    shotsOnTargetAway = parseStat(item.statistics[1].statistics, "Shots on Goal");
-                    foulsHome = parseStat(item.statistics[0].statistics, "Fouls");
-                    foulsAway = parseStat(item.statistics[1].statistics, "Fouls");
-                    yellowHome = parseStat(item.statistics[0].statistics, "Yellow Cards");
-                    yellowAway = parseStat(item.statistics[1].statistics, "Yellow Cards");
-                }
-
-                setMatchData({
-                    tournament: `${item.league.country || ''} - ${item.league.name} (Vòng ${item.league.round || 'N/A'})`,
-                    status: item.fixture.status.long || 'Đang diễn ra',
-                    minute: `${item.fixture.status.elapsed || 0}'`,
-                    homeTeam: {
-                        name: item.teams.home.name,
-                        logo: item.teams.home.logo,
-                        score: item.goals.home ?? 0,
-                        scorers: homeScorers
-                    },
-                    awayTeam: {
-                        name: item.teams.away.name,
-                        logo: item.teams.away.logo,
-                        score: item.goals.away ?? 0,
-                        scorers: awayScorers
-                    },
-                    stats: [
-                        { label: "Tỷ lệ kiểm soát bóng", home: possessionHome, away: possessionAway },
-                        { label: "Sút dứt điểm", home: shotsHome, away: shotsAway },
-                        { label: "Sút trúng đích", home: shotsOnTargetHome, away: shotsOnTargetAway },
-                        { label: "Phạm lỗi", home: foulsHome, away: foulsAway },
-                        { label: "Thẻ vàng", home: yellowHome, away: yellowAway },
-                    ],
-                    events: events
-                });
-
-            } catch (err) {
-                console.error(err);
-                setError('Không thể tải chi tiết trận đấu từ máy chủ API.');
-            } finally {
-                setLoading(false);
+                yellowHome = parseStat(item.statistics[0].statistics, ["Yellow Cards"]);
+                yellowAway = parseStat(item.statistics[1].statistics, ["Yellow Cards"]);
             }
-        };
 
+            // Tự động đếm số thẻ vàng từ mảng sự kiện (Events) để điền bù nếu thống kê chính thức trống
+            const calculatedYellowHome = events.filter((e: any) => e.team === 'home' && e.type === 'card' && e.text.includes('Yellow')).length;
+            const calculatedYellowAway = events.filter((e: any) => e.team === 'away' && e.type === 'card' && e.text.includes('Yellow')).length;
+
+            if (yellowHome === "0" && calculatedYellowHome > 0) yellowHome = String(calculatedYellowHome);
+            if (yellowAway === "0" && calculatedYellowAway > 0) yellowAway = String(calculatedYellowAway);
+
+            setMatchData({
+                tournament: `${item.league.country || ''} - ${item.league.name} (Vòng ${item.league.round || 'N/A'})`,
+                status: item.fixture.status.long || 'Đang diễn ra',
+                minute: `${item.fixture.status.elapsed || 0}'`,
+                homeTeam: {
+                    name: item.teams.home.name,
+                    logo: item.teams.home.logo,
+                    score: item.goals.home ?? 0,
+                    scorers: homeScorers
+                },
+                awayTeam: {
+                    name: item.teams.away.name,
+                    logo: item.teams.away.logo,
+                    score: item.goals.away ?? 0,
+                    scorers: awayScorers
+                },
+                stats: [
+                    { label: "Tỷ lệ kiểm soát bóng", home: possessionHome, away: possessionAway },
+                    { label: "Sút dứt điểm", home: shotsHome, away: shotsAway },
+                    { label: "Sút trúng đích", home: shotsOnTargetHome, away: shotsOnTargetAway },
+                    { label: "Phạm lỗi", home: foulsHome, away: foulsAway },
+                    { label: "Thẻ vàng", home: yellowHome, away: yellowAway },
+                ],
+                events: events
+            });
+
+        } catch (err) {
+            console.error(err);
+            setError('Không thể tải chi tiết trận đấu từ máy chủ API.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Chỉ gọi API một lần duy nhất khi load trang hoặc khi ID thay đổi
+    useEffect(() => {
         fetchMatchDetail();
     }, [id]);
 
-    if (loading) return <div className="text-center py-5">Đang tải chi tiết trận đấu...</div>;
+    if (loading && !matchData) return <div className="text-center py-5">Đang tải chi tiết trận đấu...</div>;
     if (error) return <div className="alert alert-danger text-center m-4">{error}</div>;
     if (!matchData) return null;
 
     return (
         <div className="match-detail-container">
-            {/* Header thông tin giải đấu */}
-            <div className="match-tournament-header">
-                <span className="tournament-name">{matchData.tournament}</span>
-                <span className="match-status live">
-                    <span className="live-dot"></span> {matchData.status} ({matchData.minute})
-                </span>
+            {/* Header thông tin giải đấu tích hợp nút làm mới thủ công */}
+            <div className="match-tournament-header d-flex justify-content-between align-items-center">
+                <div>
+                    <span className="tournament-name">{matchData.tournament}</span>
+                </div>
+                <div className="d-flex align-items-center gap-3">
+                    <span className="match-status live m-0">
+                        <span className="live-dot"></span> {matchData.status} ({matchData.minute})
+                    </span>
+                    <button className="btn btn-sm btn-outline-secondary py-0 px-2" onClick={fetchMatchDetail} disabled={loading} title="Cập nhật số liệu mới nhất">
+                        <i className="bi bi-arrow-clockwise"></i> {loading ? 'Đang tải...' : 'Làm mới'}
+                    </button>
+                </div>
             </div>
 
             {/* Bảng tỷ số chính dạng đối xứng */}
             <div className="match-scoreboard-symmetric">
-                {/* 1. Người ghi bàn đội nhà (Cột trái) */}
                 <div className="scorers-side home-scorers">
                     {matchData.homeTeam.scorers.length > 0 ? (
                         matchData.homeTeam.scorers.map((s: string, idx: number) => (
@@ -183,26 +201,22 @@ export default function MatchDetail() {
                     )}
                 </div>
 
-                {/* 2. Đội nhà (Logo + Tên) */}
                 <div className="team-side home-team">
                     <img src={matchData.homeTeam.logo} alt={matchData.homeTeam.name} className="team-logo" />
                     <h2>{matchData.homeTeam.name}</h2>
                 </div>
 
-                {/* 3. Khung tỉ số ở giữa */}
                 <div className="score-box-center">
                     <span className="score-number">{matchData.homeTeam.score}</span>
                     <span className="score-divider">-</span>
                     <span className="score-number">{matchData.awayTeam.score}</span>
                 </div>
 
-                {/* 4. Đội khách (Logo + Tên) */}
                 <div className="team-side away-team">
                     <img src={matchData.awayTeam.logo} alt={matchData.awayTeam.name} className="team-logo" />
                     <h2>{matchData.awayTeam.name}</h2>
                 </div>
 
-                {/* 5. Người ghi bàn đội khách (Cột phải) */}
                 <div className="scorers-side away-scorers">
                     {matchData.awayTeam.scorers.length > 0 ? (
                         matchData.awayTeam.scorers.map((s: string, idx: number) => (

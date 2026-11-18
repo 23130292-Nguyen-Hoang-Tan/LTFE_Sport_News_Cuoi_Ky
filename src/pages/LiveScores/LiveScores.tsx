@@ -7,81 +7,89 @@ export default function LiveScores() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchLiveScores = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('https://v3.football.api-sports.io/fixtures?live=all', {
-          method: 'GET',
-          headers: {
-            'x-rapidapi-key': 'c27b9be1da61631964ca91448f39dbb8',
-            'x-rapidapi-host': 'v3.football.api-sports.io'
-          }
-        });
-
-        const data = await response.json();
-        if (data.errors && Object.keys(data.errors).length > 0) {
-          throw new Error('Hết lượt gọi API hoặc lỗi hệ thống.');
+  // Hàm gọi API lấy tỉ số (được gọi khi load trang hoặc khi người dùng bấm nút làm mới)
+  const fetchLiveScores = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch('https://v3.football.api-sports.io/fixtures?live=all', {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key': 'c27b9be1da61631964ca91448f39dbb8',
+          'x-rapidapi-host': 'v3.football.api-sports.io'
         }
+      });
 
-        const list = data.response.map((item: any) => {
-          const homeId = item.teams.home.id;
-          const events = (item.events || []).map((ev: any, idx: number) => {
-            let type: 'Goal' | 'YellowCard' | 'RedCard' = 'Goal';
-            if (ev.type === 'Card') {
-              type = ev.detail.includes('Yellow') ? 'YellowCard' : 'RedCard';
-            }
-            return {
-              id: idx,
-              type: ev.type === 'Goal' ? 'Goal' : type,
-              player: ev.player.name || 'Cầu thủ',
-              time: `${ev.time.elapsed}'`,
-              isHome: ev.team.id === homeId
-            };
-          });
+      const data = await response.json();
+      if (data.errors && Object.keys(data.errors).length > 0) {
+        throw new Error('Hết lượt gọi API hoặc lỗi hệ thống.');
+      }
 
+      const list = data.response.map((item: any) => {
+        const homeId = item.teams.home.id;
+        const events = (item.events || []).map((ev: any, idx: number) => {
+          let type: 'Goal' | 'YellowCard' | 'RedCard' = 'Goal';
+          if (ev.type === 'Card') {
+            type = ev.detail.includes('Yellow') ? 'YellowCard' : 'RedCard';
+          }
           return {
-            id: item.fixture.id,
-            leagueName: `${item.league.country} - ${item.league.name}`,
-            leagueLogo: item.league.logo,
-            status: item.fixture.status.short,
-            time: `${item.fixture.status.elapsed || 0}'`,
-            stadium: item.fixture.venue.name || 'Sân vận động',
-            htScore: item.score.halftime.home !== null ? `${item.score.halftime.home} - ${item.score.halftime.away}` : undefined,
-            homeTeam: {
-              name: item.teams.home.name,
-              logo: item.teams.home.logo,
-              score: item.goals.home ?? 0,
-              yellowCards: events.filter((e: any) => e.isHome && e.type === 'YellowCard').length,
-              redCards: events.filter((e: any) => e.isHome && e.type === 'RedCard').length
-            },
-            awayTeam: {
-              name: item.teams.away.name,
-              logo: item.teams.away.logo,
-              score: item.goals.away ?? 0,
-              yellowCards: events.filter((e: any) => !e.isHome && e.type === 'YellowCard').length,
-              redCards: events.filter((e: any) => !e.isHome && e.type === 'RedCard').length
-            },
-            events
+            id: idx,
+            type: ev.type === 'Goal' ? 'Goal' : type,
+            player: ev.player.name || 'Cầu thủ',
+            time: `${ev.time.elapsed}'`,
+            isHome: ev.team.id === homeId
           };
         });
 
-        setMatches(list);
-      } catch (err) {
-        setError('Không thể tải dữ liệu tỉ số trực tiếp từ máy chủ.');
-      } finally {
-        setLoading(false);
-      }
-    };
+        return {
+          id: item.fixture.id,
+          leagueName: `${item.league.country} - ${item.league.name}`,
+          leagueLogo: item.league.logo,
+          status: item.fixture.status.short,
+          time: `${item.fixture.status.elapsed || 0}'`,
+          stadium: item.fixture.venue.name || 'Sân vận động',
+          htScore: item.score.halftime.home !== null ? `${item.score.halftime.home} - ${item.score.halftime.away}` : undefined,
+          homeTeam: {
+            name: item.teams.home.name,
+            logo: item.teams.home.logo,
+            score: item.goals.home ?? 0,
+            yellowCards: events.filter((e: any) => e.isHome && e.type === 'YellowCard').length,
+            redCards: events.filter((e: any) => e.isHome && e.type === 'RedCard').length
+          },
+          awayTeam: {
+            name: item.teams.away.name,
+            logo: item.teams.away.logo,
+            score: item.goals.away ?? 0,
+            yellowCards: events.filter((e: any) => !e.isHome && e.type === 'YellowCard').length,
+            redCards: events.filter((e: any) => !e.isHome && e.type === 'RedCard').length
+          },
+          events
+        };
+      });
 
+      setMatches(list);
+    } catch (err) {
+      setError('Không thể tải dữ liệu tỉ số trực tiếp từ máy chủ.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Chỉ gọi API một lần duy nhất khi vừa mở trang (mount component)
+  useEffect(() => {
     fetchLiveScores();
-    const timer = setInterval(fetchLiveScores, 60000);
-    return () => clearInterval(timer);
+    // Đã xóa bỏ setInterval ở đây để tiết kiệm tối đa lượt gọi API.
   }, []);
 
   return (
     <div className="live-scores-container">
-      <h2>Tỉ số trực tiếp</h2>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h2>Tỉ số trực tiếp</h2>
+        {/* Nút bấm chủ động làm mới dữ liệu giúp tiết kiệm quota */}
+        <button className="btn btn-outline-primary btn-sm" onClick={fetchLiveScores} disabled={loading}>
+          <i className="bi bi-arrow-clockwise me-1"></i> {loading ? 'Đang cập nhật...' : 'Làm mới dữ liệu'}
+        </button>
+      </div>
       
       <div className="legend-container">
         <div className="legend-item"><span className="blinking-dot"></span> Đang diễn ra</div>
@@ -90,7 +98,7 @@ export default function LiveScores() {
         <div className="legend-item"><span className="event-icon icon-red-card"></span> Thẻ đỏ</div>
       </div>
 
-      {loading && <div className="text-center py-4 text-muted">Đang tải dữ liệu...</div>}
+      {loading && matches.length === 0 && <div className="text-center py-4 text-muted">Đang tải dữ liệu...</div>}
       {error && <div className="alert alert-warning text-center">{error}</div>}
 
       {!loading && !error && matches.length === 0 && (
