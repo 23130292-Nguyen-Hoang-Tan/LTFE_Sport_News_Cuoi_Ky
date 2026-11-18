@@ -1,15 +1,10 @@
 import type { NewsType } from '../data/news';
 
-// link rss thể thao 247
-const RSS_URL = 'https://thethao247.vn/trang-chu.rss';
-// link allorigins đọc thẳng xml
-const PROXY_URL = `https://api.allorigins.win/raw?url=${encodeURIComponent(RSS_URL)}`;
-
 
 // duyệt từng bài viết và parse dữ liệu theo newstype
-export async function fetchTheThao247Rss(): Promise<NewsType[]> {
+export async function fetchHomePage(): Promise<NewsType[]> {
     try {
-        const res = await fetch(PROXY_URL);
+        const res = await fetch('/tt247/trang-chu.rss');
         const xmlText = await res.text();
 
         const doc = new DOMParser().parseFromString(xmlText, 'text/xml');
@@ -66,3 +61,4 @@ export async function fetchTheThao247Rss(): Promise<NewsType[]> {
         return [];
     }
 }
+
