@@ -2,7 +2,7 @@ import type { NewsType } from '../data/news';
 
 
 // duyệt từng bài viết và parse dữ liệu theo newstype
-export async function fetchHomePage(): Promise<NewsType[]> {
+export async function fetchData(): Promise<NewsType[]> {
     try {
         const res = await fetch('/tt247/trang-chu.rss');
         const xmlText = await res.text();

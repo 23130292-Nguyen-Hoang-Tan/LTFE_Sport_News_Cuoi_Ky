@@ -3,7 +3,7 @@ import './NewsDetail.css';
 import NewsComment from "../newsComment/NewsComment.tsx";
 import { useState, useEffect } from 'react';
 import {  useParams } from 'react-router-dom';
-import { fetchHomePage } from "../../service/rssService.ts";
+import { fetchData } from "../../service/rssService.ts";
 import type { NewsType } from "../../data/news.ts";
 
 export default function NewsDetail() {
@@ -12,7 +12,7 @@ export default function NewsDetail() {
 
     useEffect(() => {
         async function loadNewsDetail() {
-            const allNews = await fetchHomePage();
+            const allNews = await fetchData();
             const found = allNews.find((item) => String(item.id) === id);
             setNews(found || allNews[0] || null);
         }

@@ -3,7 +3,7 @@ import FeatureNews from "../../components/featureNews/FeatureNews";
 import NewsList from "../../components/newsList/NewsList";
 import type { NewsType } from "../../data/news.ts";
 import { useState, useEffect } from "react";
-import { fetchHomePage } from "../../service/rssService.ts";
+import { fetchData } from "../../service/rssService.ts";
 
 export default function HomePage() {
     //lưu danh sách news lấy ra từ rss
@@ -11,7 +11,7 @@ export default function HomePage() {
 
     useEffect(() => {
         async function loadNews() {
-            const data = await fetchHomePage();
+            const data = await fetchData();
             setNewsList(data);
         }
         loadNews();

@@ -2,8 +2,54 @@ import NewsDetail from '../../components/newsDetail/NewsDetail';
 import NewsList from "../../components/newsList/NewsList.tsx"
 import "./NewsDetailPage.css";
 import Sidebar from "../../components/sidebar/Sidebar.tsx";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import type { NewsType } from "../../data/news.ts";
+import { fetchData } from "../../service/rssService.ts";
 
 export default function NewsDetailPage() {
+    const [newsList, setNewsList] = useState<NewsType[]>([]);
+    //lấy id bài viết hiện tại
+    const { id } = useParams();
+
+    useEffect(() => {
+        async function loadNews() {
+            const data = await fetchData();
+            setNewsList(data);
+        }
+        loadNews();
+    }, []);
+
+    //tìm bài viết hiện tại đang hiển thị
+    const currentArticle = newsList.find((item) => String(item.id) === String(id)) || newsList[0];
+
+    //list mới nhất trừ bài đang hiển thị
+    const latestNews = newsList.filter((item) => item.id !== currentArticle?.id);
+
+    //list nổi bật
+    const featuredNews = [...latestNews].sort(
+        (a, b) => (b.viewsCount || 0) - (a.viewsCount || 0)
+    );
+
+    //list trendding
+    const trendingNews = [...latestNews].sort(
+        (a, b) =>
+            ((b.viewsCount || 0) + (b.commentsCount || 0) * 5) -
+            ((a.viewsCount || 0) + (a.commentsCount || 0) * 5)
+    );
+
+    //list có thể bạn quan tâm, lọc các bài cùng danh mục
+    const sameCategoryNews = latestNews.filter(
+        (item) => currentArticle?.category && item.category === currentArticle.category
+    );
+    //nếu bài cùng danh mục chưa đủ 9 thì thêm bài khác vào
+    const relatedNews =
+        sameCategoryNews.length >= 9
+            ? sameCategoryNews
+            : [
+                ...sameCategoryNews,
+                ...latestNews.filter((item) => item.category !== currentArticle?.category),
+            ];
     return (
         <div className="site-wrapper">
             <main className="main-content site-layout py-4 px-3">
@@ -15,6 +61,7 @@ export default function NewsDetailPage() {
                         <div className="mt-5">
                             <NewsList
                                 title="TRENDING"
+                                data={trendingNews}
                                 columns={3}
                                 variant="grid"
                                 limit={6}
@@ -24,6 +71,7 @@ export default function NewsDetailPage() {
                         <div className="mt-5">
                             <NewsList
                                 title="Có thể bạn quan tâm"
+                                data={relatedNews}
                                 columns={3}
                                 variant="grid"
                                 limit={9}
@@ -33,6 +81,7 @@ export default function NewsDetailPage() {
                         <div className="mt-5">
                             <NewsList
                                 title="Mới nhất"
+                                data={latestNews}
                                 columns={1}
                                 variant="horizontal"
                                 limit={10}
@@ -51,6 +100,7 @@ export default function NewsDetailPage() {
                         <div className="mt-5">
                             <NewsList
                                 title="Nổi bật"
+                                data={featuredNews}
                                 columns={1}
                                 variant="compact"
                                 limit={4}
