@@ -7,11 +7,18 @@ export default function StandingsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Chỉ gọi API MỘT LẦN DUY NHẤT để lấy Bảng xếp hạng Ngoại hạng Anh khi mở trang
+    // State phục vụ Modal danh sách cầu thủ
+    const [showSquadModal, setShowSquadModal] = useState(false);
+    const [squad, setSquad] = useState<any[]>([]);
+    const [loadingSquad, setLoadingSquad] = useState(false);
+    const [squadError, setSquadError] = useState<string | null>(null);
+
+    // 1. Gọi API lấy Bảng xếp hạng Ngoại hạng Anh khi mở trang
     useEffect(() => {
         const fetchStandings = async () => {
             try {
                 setLoading(true);
+                setError(null);
                 const response = await fetch('https://v3.football.api-sports.io/standings?league=39&season=2024', {
                     method: 'GET',
                     headers: {
@@ -21,10 +28,10 @@ export default function StandingsPage() {
                 });
 
                 const data = await response.json();
-                
+
                 if (data.response && data.response.length > 0) {
                     const rawTable = data.response[0].league.standings[0];
-                    
+
                     const formattedTable = rawTable.map((item: any) => ({
                         rank: item.rank,
                         id: item.team.id,
@@ -36,7 +43,7 @@ export default function StandingsPage() {
                         lost: item.all.lose,
                         gd: item.goalsDiff > 0 ? `+${item.goalsDiff}` : `${item.goalsDiff}`,
                         points: item.points,
-                        form: item.form ? item.form.split('').slice(-5) : [], // Lấy 5 trận phong độ gần nhất
+                        form: item.form ? item.form.split('').slice(-5) : [],
                         description: item.description || 'Ngoại hạng Anh'
                     }));
 
@@ -53,7 +60,44 @@ export default function StandingsPage() {
         fetchStandings();
     }, []);
 
-    // Lấy thông tin đội bóng đang được chọn trực tiếp từ mảng `standings` sẵn có (Không cần gọi API thừa thãi)
+    // Khi đổi đội bóng, đóng modal cũ và xóa danh sách cầu thủ cũ
+    const handleSelectTeam = (teamId: number) => {
+        setSelectedTeamId(teamId);
+        setShowSquadModal(false);
+        setSquad([]);
+        setSquadError(null);
+    };
+
+    // 2. Mở Modal và chỉ gọi API lấy cầu thủ khi người dùng bấm nút
+    const handleOpenSquadModal = async (teamId: number) => {
+        setShowSquadModal(true);
+        setLoadingSquad(true);
+        setSquadError(null);
+
+        try {
+            const response = await fetch(`https://v3.football.api-sports.io/players/squads?team=${teamId}`, {
+                method: 'GET',
+                headers: {
+                    'x-rapidapi-key': 'c27b9be1da61631964ca91448f39dbb8',
+                    'x-rapidapi-host': 'v3.football.api-sports.io'
+                }
+            });
+
+            const data = await response.json();
+            if (data.errors && Object.keys(data.errors).length > 0) {
+                throw new Error('Lỗi hoặc hết lượt gọi API.');
+            }
+
+            const players = data.response?.[0]?.players || [];
+            setSquad(players);
+        } catch (err) {
+            console.error(err);
+            setSquadError('Không thể tải danh sách cầu thủ lúc này.');
+        } finally {
+            setLoadingSquad(false);
+        }
+    };
+
     const selectedTeam = standings.find(t => t.id === selectedTeamId) || standings[0];
 
     if (loading) return <div className="text-center py-5">Đang tải bảng xếp hạng Ngoại Hạng Anh...</div>;
@@ -63,7 +107,7 @@ export default function StandingsPage() {
         <div className="standings-page-container">
             <div className="standings-header">
                 <h2>Bảng xếp hạng Ngoại Hạng Anh (Premier League)</h2>
-                <p>Mùa giải 2024/2025 - Dữ liệu thực tế từ API</p>
+                <p>Mùa giải 2024/2025</p>
             </div>
 
             <div className="standings-content-grid">
@@ -84,11 +128,11 @@ export default function StandingsPage() {
                         </thead>
                         <tbody>
                             {standings.map((team) => (
-                                <tr 
-                                    key={team.id} 
+                                <tr
+                                    key={team.id}
                                     className={team.id === selectedTeamId ? "highlight-row cursor-pointer" : "cursor-pointer"}
-                                    onClick={() => setSelectedTeamId(team.id)}
-                                    title="Nhấn để xem chi tiết đội bóng"
+                                    onClick={() => handleSelectTeam(team.id)}
+                                    title="Nhấn để xem thông tin đội bóng"
                                 >
                                     <td>{team.rank}</td>
                                     <td className="team-name-cell">
@@ -107,7 +151,7 @@ export default function StandingsPage() {
                     </table>
                 </div>
 
-                {/* Cột phải: Thông tin tóm tắt đội bóng đang chọn */}
+                {/* Cột phải: Thông tin đội bóng */}
                 <div className="content-card team-info-card">
                     {selectedTeam ? (
                         <>
@@ -115,7 +159,7 @@ export default function StandingsPage() {
                                 <img src={selectedTeam.logo} alt={selectedTeam.name} className="detail-team-logo" />
                                 <h3>{selectedTeam.name}</h3>
                             </div>
-                            
+
                             <div className="team-info-body">
                                 <div className="info-row">
                                     <span className="info-label">Vị trí hiện tại:</span>
@@ -149,12 +193,69 @@ export default function StandingsPage() {
                                     )}
                                 </div>
                             </div>
+
+                            <button
+                                type="button"
+                                className="btn btn-primary w-100 mt-4"
+                                onClick={() => handleOpenSquadModal(selectedTeam.id)}
+                            >
+                                Xem danh sách cầu thủ
+                            </button>
                         </>
                     ) : (
                         <div className="text-center py-5 text-muted">Vui lòng chọn một đội bóng từ bảng xếp hạng.</div>
                     )}
                 </div>
             </div>
+
+            {/* Modal hiển thị danh sách cầu thủ */}
+            {showSquadModal && selectedTeam && (
+                <div className="squad-modal-backdrop" onClick={() => setShowSquadModal(false)}>
+                    <div className="squad-modal-box" onClick={(e) => e.stopPropagation()}>
+                        <div className="squad-modal-header">
+                            <div className="d-flex align-items-center gap-2">
+                                <img src={selectedTeam.logo} alt={selectedTeam.name} width="28" height="28" style={{ objectFit: 'contain' }} />
+                                <h4 className="m-0">Danh sách cầu thủ - {selectedTeam.name}</h4>
+                            </div>
+                            <button
+                                type="button"
+                                className="squad-modal-close"
+                                onClick={() => setShowSquadModal(false)}
+                                aria-label="Đóng"
+                            >
+                                &times;
+                            </button>
+                        </div>
+
+                        <div className="squad-modal-body">
+                            {loadingSquad && <p className="text-center text-muted py-4 m-0">Đang tải danh sách cầu thủ...</p>}
+                            {squadError && <div className="alert alert-warning py-2 small m-0">{squadError}</div>}
+
+                            {!loadingSquad && !squadError && squad.length === 0 && (
+                                <p className="text-center text-muted py-4 m-0">Không có dữ liệu cầu thủ cho đội bóng này.</p>
+                            )}
+
+                            {!loadingSquad && squad.length > 0 && (
+                                <div className="squad-player-list">
+                                    {squad.map((player: any) => (
+                                        <div key={player.id} className="squad-player-row">
+                                            <div className="squad-player-info">
+                                                {player.photo && (
+                                                    <img src={player.photo} alt={player.name} className="squad-player-avatar" />
+                                                )}
+                                                <span className="squad-player-name">{player.name}</span>
+                                            </div>
+                                            <span className="squad-player-meta">
+                                                {player.position || 'N/A'} {player.number ? `#${player.number}` : ''}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
