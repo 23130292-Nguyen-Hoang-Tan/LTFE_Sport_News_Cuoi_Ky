@@ -4,17 +4,30 @@ import NewsComment from "../newsComment/NewsComment.tsx";
 import { useState, useEffect } from 'react';
 import {  useParams } from 'react-router-dom';
 import { fetchData } from "../../service/rssService.ts";
+import { fetchNewsDetail } from "../../service/rssService.ts";
 import type { NewsType } from "../../data/news.ts";
 
 export default function NewsDetail() {
     const { id } = useParams<{ id: string }>();
     const [news, setNews] = useState<NewsType | null>(null);
+    const [fullContent, setFullContent] = useState<string>("");
+    const [loadingDetail, setLoadingDetail] = useState<boolean>(false);
 
     useEffect(() => {
         async function loadNewsDetail() {
             const allNews = await fetchData();
             const found = allNews.find((item) => String(item.id) === id);
-            setNews(found || allNews[0] || null);
+            const currentNews = found || allNews[0] || null;
+            setNews(currentNews);
+
+            // lấy nội dung bài viết chi tiết
+            const targetSlug = id || (currentNews ? String(currentNews.id) : "");
+            if (targetSlug) {
+                setLoadingDetail(true);
+                const detailHtml = await fetchNewsDetail(targetSlug);
+                setFullContent(detailHtml);
+                setLoadingDetail(false);
+            }
         }
         loadNewsDetail();
     }, [id]);
@@ -63,15 +76,23 @@ export default function NewsDetail() {
 
             {/* nội dung chi tiết */}
             <div className="news-content">
-                <figure>
-                    <img
-                        src={news.imageUrl}
-                        alt={news.title}
-                    />
-                    <figcaption>{news.title}</figcaption>
-                </figure>
+                {loadingDetail ? (
+                    <p className="text-muted">Đang tải nội dung bài viết...</p>
+                ) : fullContent ? (
+                    <div dangerouslySetInnerHTML={{ __html: fullContent }} />
+                ) : (
+                    <>
+                        <figure>
+                            <img
+                                src={news.imageUrl}
+                                alt={news.title}
+                            />
+                            <figcaption>{news.title}</figcaption>
+                        </figure>
 
-                <p>{news.content || news.description}</p>
+                        <p>{news.content || news.description}</p>
+                    </>
+                )}
             </div>
 
             {/* thẻ tag bài viết */}

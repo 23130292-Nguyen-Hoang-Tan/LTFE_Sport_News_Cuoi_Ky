@@ -7,10 +7,12 @@ interface FeatureNewsProps {
 }
 
 function FeatureNews({ news }: FeatureNewsProps) {
+    if (!news) return null;
+    const detailUrl = `/news/${encodeURIComponent(String(news.id))}`;
     return (
         <div className="news-card">
             {/* ảnh */}
-            <Link to={'/news/${news.id}'} className="news-thumb d-block">
+            <Link to={detailUrl} className="news-thumb d-block">
                 <img src={news?.imageUrl} alt={news?.title} className="w-100" />
             </Link>
 
