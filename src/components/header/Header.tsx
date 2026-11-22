@@ -10,20 +10,20 @@ function Header() {
         <header className="main-header">
             <div className="header-content">
                 <div className="container d-flex align-items-center justify-content-between py-2">
-                    {/* logo */}
+                    {/* Logo */}
                     <Link to="/" className="logo">
                         <img src={logo} alt="Thể Thao 247" />
                     </Link>
 
-                    {/* menu bên phải */}
-                    <div className="nav-right d-flex align-items-center gap-3">
+                    {/* Tagline / Thông tin cập nhật */}
+                    <div className="header-tagline d-none d-lg-flex align-items-center gap-2 text-muted small">
+                        <i className="bi bi-broadcast text-danger animate-pulse"></i>
+                        <span>Kênh tin tức & Bình luận thể thao hàng đầu 24/7</span>
+                    </div>
 
-                        <Link to="#" className="nav-item post">
-                            <i className="bi bi-pencil"></i>
-                            <span>Đăng bài</span>
-                        </Link>
-                        
-                        <Link to="#" className="btn-group-custom">
+                    {/* Menu bên phải */}
+                    <div className="nav-right d-flex align-items-center gap-3">
+                        <Link to="/live-scores" className="btn-group-custom text-decoration-none">
                             <i className="bi bi-people-fill"></i>
                             <span>Góc cộng đồng</span>
                         </Link>
@@ -32,7 +32,7 @@ function Header() {
                         <div className="d-flex align-items-center gap-2 border-start ps-3 ms-2">
                             {isAuthenticated && user ? (
                                 <>
-                                    <Link to="/profile" className="header-user-badge" title="Xem thông tin cá nhân">
+                                    <Link to="/profile" className="header-user-badge text-decoration-none" title="Xem thông tin cá nhân">
                                         <img
                                             src={user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80'}
                                             alt={user.name}
@@ -52,12 +52,12 @@ function Header() {
                                 </>
                             ) : (
                                 <>
-                                    <Link to="/login" className="btn-box login-btn">
+                                    <Link to="/login" className="btn-box login-btn text-decoration-none">
                                         <i className="bi bi-person"></i>
                                         <span>Đăng nhập</span>
                                     </Link>
 
-                                    <Link to="/register" className="btn-box">
+                                    <Link to="/register" className="btn-box text-decoration-none">
                                         <i className="bi bi-person-plus"></i>
                                         <span>Đăng ký</span>
                                     </Link>
