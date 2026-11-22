@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import type { Comment } from '../../types/comment';
 import './Profile.css';
 
 // Danh sách avatar mẫu để người dùng chọn nhanh
@@ -45,8 +46,8 @@ export default function Profile() {
     const { user, isAuthenticated, logout, updateProfile, changePassword } = useAuth();
     const navigate = useNavigate();
 
-    // Tab hiện tại: 'info' | 'password' | 'saved'
-    const [activeTab, setActiveTab] = useState<'info' | 'password' | 'saved'>('info');
+    // Tab hiện tại: 'info' | 'password' | 'saved' | 'comments'
+    const [activeTab, setActiveTab] = useState<'info' | 'password' | 'saved' | 'comments'>('info');
 
     // Chế độ chỉnh sửa thông tin cá nhân
     const [isEditing, setIsEditing] = useState(false);
@@ -65,6 +66,20 @@ export default function Profile() {
 
     // Danh sách bài viết đã lưu
     const [savedArticles, setSavedArticles] = useState(INITIAL_SAVED_ARTICLES);
+
+    // Danh sách bình luận của chính người dùng
+    const [userComments, setUserComments] = useState<Comment[]>(() => {
+        try {
+            const raw = localStorage.getItem('thethao247_comments_list');
+            if (raw && user) {
+                const list: Comment[] = JSON.parse(raw);
+                return list.filter(c => c.authorId === user.id);
+            }
+        } catch (e) {
+            console.error('Lỗi khi đọc comments:', e);
+        }
+        return [];
+    });
 
     // Thông báo phản hồi
     const [alertMsg, setAlertMsg] = useState<{ type: 'success' | 'danger'; text: string } | null>(null);
@@ -180,6 +195,24 @@ export default function Profile() {
         setAlertMsg({ type: 'success', text: 'Đã bỏ lưu bài viết!' });
     };
 
+    // Xử lý xóa bình luận cá nhân
+    const handleDeleteUserComment = (id: string) => {
+        if (window.confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
+            try {
+                const raw = localStorage.getItem('thethao247_comments_list');
+                if (raw) {
+                    const list: Comment[] = JSON.parse(raw);
+                    const updated = list.filter(c => c.id !== id);
+                    localStorage.setItem('thethao247_comments_list', JSON.stringify(updated));
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            setUserComments(prev => prev.filter(c => c.id !== id));
+            setAlertMsg({ type: 'success', text: 'Đã xóa bình luận thành công!' });
+        }
+    };
+
     const handleLogout = () => {
         logout();
         navigate('/');
@@ -276,6 +309,15 @@ export default function Profile() {
                                 <i className="bi bi-bookmark-star-fill"></i>
                                 <span>Bài viết đã lưu</span>
                                 <span className="badge bg-secondary ms-auto">{savedArticles.length}</span>
+                            </button>
+                            <button
+                                type="button"
+                                className={`list-group-item list-group-item-action d-flex align-items-center gap-2 ${activeTab === 'comments' ? 'active' : ''}`}
+                                onClick={() => { setActiveTab('comments'); setAlertMsg(null); }}
+                            >
+                                <i className="bi bi-chat-dots-fill"></i>
+                                <span>Bình luận của tôi</span>
+                                <span className="badge bg-secondary ms-auto">{userComments.length}</span>
                             </button>
                             <button
                                 type="button"
@@ -668,6 +710,53 @@ export default function Profile() {
                                                     >
                                                         <i className="bi bi-trash"></i>
                                                     </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* TAB 4: BÌNH LUẬN CỦA TÔI */}
+                            {activeTab === 'comments' && (
+                                <div>
+                                    <div className="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                                        <h5 className="fw-bold text-dark mb-0">
+                                            <i className="bi bi-chat-dots-fill text-primary me-2"></i>
+                                            Bình Luận Đã Gửi ({userComments.length})
+                                        </h5>
+                                    </div>
+
+                                    {userComments.length === 0 ? (
+                                        <div className="text-center py-5 text-muted">
+                                            <i className="bi bi-chat-square-text display-4 d-block mb-2 text-secondary"></i>
+                                            <p className="mb-2">Bạn chưa gửi bình luận nào.</p>
+                                            <Link to="/live-scores" className="btn btn-outline-primary btn-sm">
+                                                Xem tỉ số & bình luận trận đấu
+                                            </Link>
+                                        </div>
+                                    ) : (
+                                        <div className="user-comments-list d-flex flex-column gap-3">
+                                            {userComments.map(cmt => (
+                                                <div key={cmt.id} className="p-3 border rounded bg-white shadow-sm">
+                                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                                                        <span className="badge bg-light text-primary border">
+                                                            <i className="bi bi-clock me-1"></i>{cmt.createdAt}
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-danger btn-sm"
+                                                            onClick={() => handleDeleteUserComment(cmt.id)}
+                                                            title="Xóa bình luận này"
+                                                        >
+                                                            <i className="bi bi-trash me-1"></i>Xóa
+                                                        </button>
+                                                    </div>
+                                                    <p className="text-secondary mb-2 fst-italic">"{cmt.content}"</p>
+                                                    <div className="d-flex align-items-center gap-2 text-muted small">
+                                                        <i className="bi bi-heart-fill text-danger"></i>
+                                                        <span>{cmt.likes} lượt thích</span>
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './LiveScores.css';
+import CommentSection from '../../components/comments/CommentSection';
 
 interface MatchEvent {
   id: number;
@@ -142,6 +143,9 @@ const LiveScores: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* Phần bình luận & thảo luận trực tiếp */}
+      <CommentSection title="Thảo luận & Bình luận trực tiếp các trận đấu" />
     </div>
   );
 };
