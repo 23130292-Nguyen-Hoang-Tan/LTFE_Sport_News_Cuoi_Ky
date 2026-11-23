@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useFilter } from '../../context/FilterContext';
 import './Navbar.css';
 
 export default function Navbar() {
     const { user, isAuthenticated, logout } = useAuth();
+    const { searchKeyword, setSearchKeyword } = useFilter();
 
     return (
         <nav className="main-navbar">
@@ -62,6 +64,8 @@ export default function Navbar() {
                             type="text"
                             placeholder="Tìm kiếm tin tức, đội bóng..."
                             className="search-input"
+                            value={searchKeyword}
+                            onChange={(e) => setSearchKeyword(e.target.value)}
                         />
                         <select className="filter-select">
                             <option value="newest">Mới nhất</option>
