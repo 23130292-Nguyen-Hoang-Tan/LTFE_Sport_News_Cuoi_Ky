@@ -32,20 +32,39 @@ export default function StandingsPage() {
                 if (data.response && data.response.length > 0) {
                     const rawTable = data.response[0].league.standings[0];
 
-                    const formattedTable = rawTable.map((item: any) => ({
-                        rank: item.rank,
-                        id: item.team.id,
-                        name: item.team.name,
-                        logo: item.team.logo,
-                        played: item.all.played,
-                        won: item.all.win,
-                        drawn: item.all.draw,
-                        lost: item.all.lose,
-                        gd: item.goalsDiff > 0 ? `+${item.goalsDiff}` : `${item.goalsDiff}`,
-                        points: item.points,
-                        form: item.form ? item.form.split('').slice(-5) : [],
-                        description: item.description || 'Ngoại hạng Anh'
-                    }));
+                    const formattedTable = rawTable.map((item: any) => {
+                        // Đường dẫn chuẩn của API-Football: item.goals và item.home / item.away
+                        const gf = item.goals?.for ?? item.all?.goals?.for ?? 0;
+                        const ga = item.goals?.against ?? item.all?.goals?.against ?? 0;
+
+                        const homeWin = item.home?.win ?? 0;
+                        const homeDraw = item.home?.draw ?? 0;
+                        const homeLose = item.home?.lose ?? 0;
+
+                        const awayWin = item.away?.win ?? 0;
+                        const awayDraw = item.away?.draw ?? 0;
+                        const awayLose = item.away?.lose ?? 0;
+
+                        return {
+                            rank: item.rank,
+                            id: item.team.id,
+                            name: item.team.name,
+                            logo: item.team.logo,
+                            played: item.all.played,
+                            won: item.all.win,
+                            drawn: item.all.draw,
+                            lost: item.all.lose,
+                            gd: item.goalsDiff > 0 ? `+${item.goalsDiff}` : `${item.goalsDiff ?? 0}`,
+                            points: item.points,
+                            form: item.form ? item.form.split('').slice(-5) : [],
+                            description: item.description || 'Ngoại hạng Anh',
+                            goalsFor: gf,
+                            goalsAgainst: ga,
+                            recordSummary: `${item.all.win}W - ${item.all.draw}D - ${item.all.lose}L`,
+                            homeRecord: `${homeWin}W - ${homeDraw}D - ${homeLose}L`,
+                            awayRecord: `${awayWin}W - ${awayDraw}D - ${awayLose}L`
+                        };
+                    });
 
                     setStandings(formattedTable);
                 }
@@ -162,12 +181,24 @@ export default function StandingsPage() {
 
                             <div className="team-info-body">
                                 <div className="info-row">
-                                    <span className="info-label">Vị trí hiện tại:</span>
-                                    <span className="info-value fw-bold">Top {selectedTeam.rank}</span>
+                                    <span className="info-label">Số trận / Kết quả:</span>
+                                    <span className="info-value">{selectedTeam.played} trận ({selectedTeam.recordSummary})</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="info-label">Bàn thắng / Bàn thua:</span>
+                                    <span className="info-value">{selectedTeam.goalsFor} / {selectedTeam.goalsAgainst}</span>
                                 </div>
                                 <div className="info-row">
                                     <span className="info-label">Hiệu suất (GD):</span>
                                     <span className="info-value">{selectedTeam.gd}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="info-label">Sân nhà:</span>
+                                    <span className="info-value">{selectedTeam.homeRecord}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="info-label">Sân khách:</span>
+                                    <span className="info-value">{selectedTeam.awayRecord}</span>
                                 </div>
                                 <div className="info-row">
                                     <span className="info-label">Tổng điểm:</span>
