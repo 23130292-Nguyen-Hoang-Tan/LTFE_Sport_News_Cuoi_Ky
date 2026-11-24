@@ -2,10 +2,11 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useFilter } from '../../context/FilterContext';
 import './Navbar.css';
+import type { SortOption } from "../../context/FilterContext";
 
 export default function Navbar() {
     const { user, isAuthenticated, logout } = useAuth();
-    const { searchKeyword, setSearchKeyword } = useFilter();
+    const { searchKeyword, setSearchKeyword, sortBy, setSortBy } = useFilter();
 
     return (
         <nav className="main-navbar">
@@ -57,7 +58,7 @@ export default function Navbar() {
                     </div>
                 </div>
 
-                {/* Tìm kiếm + lọc */}
+                {/* Tìm kiếm + sắp xếp */}
                 <div className="nav-center">
                     <div className="search-group">
                         <input
@@ -67,8 +68,14 @@ export default function Navbar() {
                             value={searchKeyword}
                             onChange={(e) => setSearchKeyword(e.target.value)}
                         />
-                        <select className="filter-select">
+                        <select
+                            className="filter-select"
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value as SortOption)}
+                        >
+                            <option value="default">Sắp xếp</option>
                             <option value="newest">Mới nhất</option>
+                            <option value="oldest">Cũ nhất</option>
                             <option value="popular">Phổ biến</option>
                         </select>
                         <button className="search-btn">

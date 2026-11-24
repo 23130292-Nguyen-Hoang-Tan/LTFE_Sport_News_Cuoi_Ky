@@ -13,7 +13,7 @@ interface FilterLayoutProps {
 export default function FilterLayout({ children }: FilterLayoutProps) {
     const [allNews, setAllNews] = useState<NewsType[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const { searchKeyword, setSearchKeyword } = useFilter();
+    const { searchKeyword, sortBy, clearFilters } = useFilter();
     const location = useLocation();
 
     // tải dữ liệu từ rss
@@ -25,31 +25,57 @@ export default function FilterLayout({ children }: FilterLayoutProps) {
 
     // tats giao diện tìm kiếm nếu người dùng chuyển trang hoặc tắt tìm kiếm
     useEffect(() => {
-        setSearchKeyword("");
-    }, [location.pathname, setSearchKeyword]);
+        clearFilters();
+    }, [location.pathname]);
 
     const keyword = searchKeyword.trim().toLowerCase();
-    const searchedNews = keyword
+    const isFiltering = keyword !== "" || sortBy !== "default";
+    //nếu không có từ khóa thì sắp xếp toàn bộ danh sách
+    const filteredNews = keyword
         ? allNews.filter(
             (item) =>
                 item.title.toLowerCase().includes(keyword) ||
                 item.description?.toLowerCase().includes(keyword)
         )
-        : [];
-
+        : allNews;
+    //sắp xếp danh sách theo lựa chọn
+    const sortedNews = [...filteredNews].sort((a, b) => {
+        if (sortBy === "newest") {
+            return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+        }
+        if (sortBy === "oldest") {
+            return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+        }
+        if (sortBy === "popular") {
+            return (b.viewsCount || 0) - (a.viewsCount || 0);
+        }
+        return 0;
+    });
+    //nhãn hiển thị tương ứng với kiểu sắp xếp đang chọn
+    const sortLabels: Record<string, string> = {
+        newest: "Mới nhất",
+        oldest: "Cũ nhất",
+        popular: "Phổ biến",
+    };
     return (
         <div className="main-content">
-            {keyword !== "" ? (
+            {isFiltering ? (
                 <div className="container my-4 filter-results-container">
                     <div className="filter-header-bar mb-4">
                         <span className="text-dark">
-                            Tìm thấy <b className="text-danger">{searchedNews.length}</b> kết quả cho từ khóa{" "}
+                            Tìm thấy <b className="text-danger">{sortedNews.length}</b> kết quả cho từ khóa{" "}
+                            {/*hiển thị nhãn theo kiểu sắp xếp người dùng chọn*/}
+                            {sortBy !== "default" && (
+                                <>
+                                    {" "}— Sắp xếp: <b className="text-danger">{sortLabels[sortBy]}</b>
+                                </>
+                            )}
                             <b>"{searchKeyword}"</b>
                         </span>
                         <button
                             type="button"
                             className="btn btn-sm btn-outline-danger"
-                            onClick={() => setSearchKeyword("")}
+                            onClick={clearFilters}
                         >
                             <i className="bi bi-x-lg me-1"></i>Đóng tìm kiếm
                         </button>
@@ -60,10 +86,14 @@ export default function FilterLayout({ children }: FilterLayoutProps) {
                             <div className="spinner-border text-danger" role="status"></div>
                             <p className="text-muted mt-2">Đang tải dữ liệu tin tức...</p>
                         </div>
-                    ) : searchedNews.length > 0 ? (
+                    ) : sortedNews.length > 0 ? (
                         <NewsList
-                            title={`KẾT QUẢ TÌM KIẾM: "${searchKeyword.toUpperCase()}"`}
-                            data={searchedNews}
+                            title={
+                                keyword
+                                    ? `KẾT QUẢ TÌM KIẾM: "${searchKeyword.toUpperCase()}"`
+                                    : `TIN TỨC THEO: ${sortLabels[sortBy]?.toUpperCase()}`
+                            }
+                            data={sortedNews}
                             columns={1}
                             variant="horizontal"
                         />
@@ -77,7 +107,7 @@ export default function FilterLayout({ children }: FilterLayoutProps) {
                             <button
                                 type="button"
                                 className="btn btn-danger btn-sm"
-                                onClick={() => setSearchKeyword("")}
+                                onClick={clearFilters}
                             >
                                 Quay lại trang hiện tại
                             </button>
