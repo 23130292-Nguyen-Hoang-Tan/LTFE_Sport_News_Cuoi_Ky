@@ -9,6 +9,9 @@ interface FilterContextType {
     sortBy: SortOption;
     setSortBy: (sort: SortOption) => void;
     clearFilters: () => void;
+    //người dùng có đang mở ô tìm kiếm không
+    isSearchOpen: boolean;
+    setIsSearchOpen: (open: boolean) => void;
 }
 
 const FilterContext = createContext<FilterContextType>({
@@ -16,6 +19,8 @@ const FilterContext = createContext<FilterContextType>({
     setSearchKeyword: () => {},
     //giá trị mặc định default
     sortBy: "default",
+    isSearchOpen: false,
+    setIsSearchOpen: () => {},
     setSortBy: () => {},
     clearFilters: () => {},
 });
@@ -23,9 +28,11 @@ const FilterContext = createContext<FilterContextType>({
 export function FilterProvider({ children }: { children: React.ReactNode }) {
     const [searchKeyword, setSearchKeyword] = useState<string>("");
     const [sortBy, setSortBy] = useState<SortOption>("default");
+    const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
     const clearFilters = () => {
         setSearchKeyword("");
         setSortBy("default");
+        setIsSearchOpen(false);
     };
     return (
         <FilterContext.Provider
@@ -34,6 +41,8 @@ export function FilterProvider({ children }: { children: React.ReactNode }) {
                 setSearchKeyword,
                 //truyền xuống provider
                 sortBy,
+                isSearchOpen,
+                setIsSearchOpen,
                 setSortBy,
                 clearFilters,
             }}

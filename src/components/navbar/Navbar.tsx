@@ -1,13 +1,17 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useFilter } from '../../context/FilterContext';
 import './Navbar.css';
 import type { SortOption } from "../../context/FilterContext";
 
+
 export default function Navbar() {
     const { user, isAuthenticated, logout } = useAuth();
-    const { searchKeyword, setSearchKeyword, sortBy, setSortBy } = useFilter();
-
+    const { searchKeyword, setSearchKeyword, sortBy, setSortBy, isSearchOpen,
+        setIsSearchOpen } = useFilter();
+    const location = useLocation();
+    const isHomePage = location.pathname === '/';
+    const canSort = isHomePage || isSearchOpen;
     return (
         <nav className="main-navbar">
             <div className="navbar-container">
@@ -66,11 +70,16 @@ export default function Navbar() {
                             placeholder="Tìm kiếm tin tức, đội bóng..."
                             className="search-input"
                             value={searchKeyword}
-                            onChange={(e) => setSearchKeyword(e.target.value)}
+                            onFocus={() => setIsSearchOpen(true)}
+                            onChange={(e) => {
+                                setIsSearchOpen(true);
+                                setSearchKeyword(e.target.value);
+                            }}
                         />
                         <select
                             className="filter-select"
                             value={sortBy}
+                            disabled={!canSort}
                             onChange={(e) => setSortBy(e.target.value as SortOption)}
                         >
                             <option value="default">Sắp xếp</option>
@@ -78,7 +87,11 @@ export default function Navbar() {
                             <option value="oldest">Cũ nhất</option>
                             <option value="popular">Phổ biến</option>
                         </select>
-                        <button className="search-btn">
+                        <button
+                            type="button"
+                            className="search-btn"
+                            onClick={() => setIsSearchOpen(true)}
+                        >
                             <i className="bi bi-search"></i>
                         </button>
                     </div>

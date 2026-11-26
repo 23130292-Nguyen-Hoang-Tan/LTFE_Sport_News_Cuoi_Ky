@@ -13,7 +13,7 @@ interface FilterLayoutProps {
 export default function FilterLayout({ children }: FilterLayoutProps) {
     const [allNews, setAllNews] = useState<NewsType[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const { searchKeyword, sortBy, clearFilters } = useFilter();
+    const { searchKeyword, sortBy, isSearchOpen, clearFilters } = useFilter();
     const location = useLocation();
 
     // tải dữ liệu từ rss
@@ -29,7 +29,9 @@ export default function FilterLayout({ children }: FilterLayoutProps) {
     }, [location.pathname]);
 
     const keyword = searchKeyword.trim().toLowerCase();
-    const isFiltering = keyword !== "" || sortBy !== "default";
+    //kiểm tra có đang ở trang chủ hay không
+    const isHomePage = location.pathname === "/";
+    const showFilterLayout = isSearchOpen || (isHomePage && sortBy !== "default");
     //nếu không có từ khóa thì sắp xếp toàn bộ danh sách
     const filteredNews = keyword
         ? allNews.filter(
@@ -59,18 +61,23 @@ export default function FilterLayout({ children }: FilterLayoutProps) {
     };
     return (
         <div className="main-content">
-            {isFiltering ? (
+            {showFilterLayout ? (
                 <div className="container my-4 filter-results-container">
                     <div className="filter-header-bar mb-4">
                         <span className="text-dark">
-                            Tìm thấy <b className="text-danger">{sortedNews.length}</b> kết quả cho từ khóa{" "}
-                            {/*hiển thị nhãn theo kiểu sắp xếp người dùng chọn*/}
+                            Tìm thấy <b className="text-danger">{sortedNews.length}</b> kết quả
+                            {/* ...cho từ khóa */}
+                            {keyword && (
+                                <>
+                                    {" "}cho từ khóa <b>"{searchKeyword}"</b>
+                                </>
+                            )}
+                            {/* hiển thị nhãn theo kiểu sắp xếp người dùng chọn */}
                             {sortBy !== "default" && (
                                 <>
                                     {" "}— Sắp xếp: <b className="text-danger">{sortLabels[sortBy]}</b>
                                 </>
                             )}
-                            <b>"{searchKeyword}"</b>
                         </span>
                         <button
                             type="button"
@@ -88,10 +95,13 @@ export default function FilterLayout({ children }: FilterLayoutProps) {
                         </div>
                     ) : sortedNews.length > 0 ? (
                         <NewsList
+                            // tiêu đề mặc định khi mới bấm vào ô tìm kiếm
                             title={
                                 keyword
                                     ? `KẾT QUẢ TÌM KIẾM: "${searchKeyword.toUpperCase()}"`
-                                    : `TIN TỨC THEO: ${sortLabels[sortBy]?.toUpperCase()}`
+                                    : sortBy !== "default"
+                                        ? `TIN TỨC THEO: ${sortLabels[sortBy]?.toUpperCase()}`
+                                        : "TẤT CẢ TIN TỨC"
                             }
                             data={sortedNews}
                             columns={1}
