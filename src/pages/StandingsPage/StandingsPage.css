@@ -1,0 +1,178 @@
+.standings-page-container {
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 0 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.standings-header {
+    background: linear-gradient(135deg, #1a3c8b, #0d2358);
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.standings-header h2 {
+    margin: 0 0 5px 0;
+    font-size: 22px;
+}
+
+.standings-header p {
+    margin: 0;
+    color: #d1d5db;
+    font-size: 14px;
+}
+
+.standings-content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+.content-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+/* Style cho Bảng xếp hạng */
+.standings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.standings-table th {
+    background-color: #f8f9fa;
+    color: #4b5563;
+    padding: 12px 10px;
+    text-align: center;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.standings-table th.text-left {
+    text-align: left;
+}
+
+.standings-table td {
+    padding: 12px 10px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+    color: #1f2937;
+}
+
+.team-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left !important;
+    font-weight: 500;
+}
+
+.table-team-logo {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.team-points {
+    font-weight: bold;
+    color: #1a3c8b;
+}
+
+.highlight-row {
+    background-color: #f0f4f8;
+}
+
+/* Style cho Chi tiết đội bóng */
+.team-info-card {
+    padding: 20px;
+}
+
+.team-info-header {
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.detail-team-logo {
+    width: 90px;
+    height: 90px;
+    margin-bottom: 10px;
+}
+
+.team-info-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #1f2937;
+}
+
+.team-info-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.info-label {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.info-value {
+    color: #1f2937;
+    font-weight: 600;
+    text-align: right;
+    max-width: 60%;
+}
+
+.text-primary {
+    color: #1a3c8b;
+    cursor: pointer;
+}
+
+/* Phong độ đội bóng */
+.team-form-section h4 {
+    font-size: 15px;
+    color: #374151;
+    margin-bottom: 10px;
+}
+
+.form-badges {
+    display: flex;
+    gap: 8px;
+}
+
+.form-badge {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 12px;
+    color: #ffffff;
+}
+
+.form-W { background-color: #10b981; } /* Thắng - Xanh lá */
+.form-D { background-color: #9ca3af; } /* Hòa - Xám */
+.form-L { background-color: #ef4444; } /* Thua - Đỏ */
+
+/* Responsive */
+@media (max-width: 992px) {
+    .standings-content-grid {
+        grid-template-columns: 1fr;
+    }
+}

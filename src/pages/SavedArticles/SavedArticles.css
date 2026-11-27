@@ -1,0 +1,169 @@
+/* Container chung */
+.saved-page {
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 150px);
+}
+
+/* Thanh Toolbar */
+.search-box input {
+    border-radius: 20px;
+    min-width: 400px;
+}
+.filter-select {
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+/* -------------------------------------
+   CẤU TRÚC LƯỚI (GRID VIEW)
+-------------------------------------- */
+.grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.grid-view .article-card {
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.grid-view .article-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+.grid-view .card-img-wrapper {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+}
+
+.grid-view .card-img-top {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.grid-view .article-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+/* -------------------------------------
+   CẤU TRÚC DANH SÁCH (LIST VIEW)
+-------------------------------------- */
+.list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.list-view .article-card {
+    display: flex;
+    flex-direction: row;
+    height: 140px;
+    position: relative;
+    transition: box-shadow 0.3s;
+}
+
+.list-view .card-img-wrapper {
+    width: 200px;
+    min-width: 200px;
+    height: 100%;
+    position: relative;
+}
+
+.list-view .card-img-top {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px 0 0 4px;
+}
+
+.list-view .card-body {
+    justify-content: center;
+}
+
+/* -------------------------------------
+   CÁC THÀNH PHẦN CHI TIẾT TRONG THẺ
+-------------------------------------- */
+/* Nhãn chuyên mục (Bóng đá, Esports...) */
+.category-badge {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background-color: var(--bs-primary);
+    color: white;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+/* Chấm đỏ báo bài chưa đọc */
+.unread-dot {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 12px;
+    height: 12px;
+    background-color: #dc3545; /* Đỏ */
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+}
+
+/* Bài viết Đã đọc sẽ bị mờ đi */
+.article-card.is-read .card-img-wrapper,
+.article-card.is-read .card-title {
+    opacity: 0.6;
+}
+
+/* Tiêu đề hover */
+.card-title a:hover {
+    color: var(--bs-primary) !important;
+}
+
+/* Ô checkbox ở chế độ quản lý */
+.card-checkbox {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    background: white;
+    padding: 4px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.card-checkbox input {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+
+/* Responsive cho Mobile */
+@media (max-width: 768px) {
+    .list-view .article-card {
+        flex-direction: column;
+        height: auto;
+    }
+    .list-view .card-img-wrapper {
+        width: 100%;
+        height: 180px;
+    }
+    .list-view .card-img-top {
+        border-radius: 4px 4px 0 0;
+    }
+    .toolbar-card .d-flex {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+    .search-box input, .filter-select {
+        width: 100%;
+    }
+}

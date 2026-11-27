@@ -28,20 +28,6 @@
     white-space: nowrap;
 }
 
-/* Nút Đăng bài */
-.post {
-    background-color: #1a3c8b;
-    color: #ffffff !important;
-    padding: 6px 16px;
-    border-radius: 6px;
-    transition: all 0.2s ease-in-out;
-}
-
-.post:hover {
-    background-color: #132b66;
-    color: #ffffff !important;
-}
-
 /* btn đăng kí đăng nhập */
 .btn-box {
     color: #1a3c8b !important;
@@ -58,65 +44,6 @@
 .btn-box:hover {
     background: #1a3c8b;
     color: #fff !important;
-}
-
-/* btn góc cộng đồng */
-.btn-group-custom {
-    background: #eef4ff;
-    color: #1a3c8b !important;
-    border-radius: 20px;
-    padding: 6px 16px;
-    transition: all 0.2s ease-in-out;
-}
-
-.btn-group-custom:hover {
-    background: #e0ecff;
-}
-
-/* User logged in badge & button in header */
-.header-user-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: #f1f5f9;
-    padding: 4px 12px 4px 4px;
-    border-radius: 20px;
-    color: #1a3c8b !important;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.header-user-badge:hover {
-    background-color: #e2e8f0;
-}
-
-.header-user-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1.5px solid #1a3c8b;
-}
-
-.header-user-name {
-    max-width: 130px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 13.5px;
-}
-
-.header-logout-btn {
-    background: transparent;
-    cursor: pointer;
-    font-size: 13.5px;
-    font-weight: 600;
-}
-
-.header-logout-btn:hover {
-    background-color: #dc3545 !important;
-    border-color: #dc3545 !important;
-    color: #ffffff !important;
 }
 
 @media (max-width: 991px) {

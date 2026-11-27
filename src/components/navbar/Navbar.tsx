@@ -17,7 +17,7 @@ export default function Navbar() {
     };
 
     const isHome = location.pathname === '/';
-    const isLiveScores = location.pathname === '/live-scores';
+    const isLiveScores = location.pathname === '/live-scores' || location.pathname === '/match-detail' || location.pathname === '/standings';
     const isProfile = location.pathname === '/profile';
 
     return (
@@ -31,7 +31,7 @@ export default function Navbar() {
 
                     {/* Bóng đá Dropdown */}
                     <div className="nav-dropdown">
-                        <Link to="/live-scores" className={`nav-link-item highlight ${isLiveScores ? 'active' : ''}`}>
+                        <Link to="/live-scores" className={`nav-link-item ${isLiveScores ? 'active highlight' : ''}`}>
                             ⚽ BÓNG ĐÁ <i className="bi bi-chevron-down ms-1"></i>
                         </Link>
                         <div className="dropdown-content">
@@ -39,14 +39,40 @@ export default function Navbar() {
                                 <span>🔴 Tỉ số trực tiếp</span>
                                 <span className="badge bg-danger" style={{ fontSize: '10px' }}>LIVE</span>
                             </Link>
-                            <Link to="/live-scores">Chi tiết trận đấu & Bình luận</Link>
-                            <Link to="/">Bảng xếp hạng & Đội bóng</Link>
+                            <Link to="/match-detail" className="text-primary fw-bold">Chi tiết trận đấu</Link>
+                            <Link to="/standings" className="text-success fw-bold">Bảng xếp hạng & Đội bóng</Link>
                         </div>
                     </div>
 
-                    {/* Các môn thể thao phổ biến tại Việt Nam */}
-                    <Link to="/" className="nav-link-item">DANH MỤC</Link>
-                    <Link to="/" className="nav-link-item">ESPORTS</Link>
+                    {/* Danh mục các môn thể thao khác */}
+                    <div className="nav-dropdown">
+                        <Link to="#" className="nav-link-item">
+                            DANH MỤC <i className="bi bi-chevron-down ms-1"></i>
+                        </Link>
+                        <div className="dropdown-content">
+                            <Link to="#">Bóng rổ</Link>
+                            <Link to="#">Quần vợt (Tennis)</Link>
+                            <Link to="#">Cầu lông</Link>
+                            <Link to="#">Đua xe (F1 / MotoGP)</Link>
+                            <Link to="#">Võ thuật (Boxing / UFC)</Link>
+                            <Link to="#">Bơi lội</Link>
+                        </div>
+                    </div>
+
+                    {/* Esports có menu thả xuống */}
+                    <div className="nav-dropdown">
+                        <Link to="#" className="nav-link-item">
+                            ESPORTS <i className="bi bi-chevron-down ms-1"></i>
+                        </Link>
+                        <div className="dropdown-content">
+                            <Link to="#">Liên Minh Huyền Thoại (LoL)</Link>
+                            <Link to="#">Dota 2</Link>
+                            <Link to="#">CS2 (Counter-Strike)</Link>
+                            <Link to="#">Valorant</Link>
+                            <Link to="#">PUBG / Mobile</Link>
+                            <Link to="#">FC Online (FIFA)</Link>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Tìm kiếm + Lọc */}
@@ -71,8 +97,8 @@ export default function Navbar() {
 
                 {/* Tiện ích cá nhân */}
                 <div className="nav-right">
-                    {/* Nút Đọc sau dẫn về Profile */}
-                    <Link to="/profile" className="bookmark-btn" title="Xem các bài viết đã lưu">
+                    {/* Nút Đọc sau */}
+                    <Link to="/saved-articles" className="bookmark-btn" title="Bài viết đã lưu (Đọc sau)">
                         <i className="bi bi-bookmark-star-fill"></i>
                         <span>Đọc sau</span>
                     </Link>
@@ -83,10 +109,10 @@ export default function Navbar() {
                             <div className={`user-profile-trigger ${isProfile ? 'active-profile' : ''}`}>
                                 <img
                                     src={user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80'}
-                                    alt={user.name}
+                                    alt={user.name || "User"}
                                     className="user-avatar"
                                 />
-                                <span className="username" title={user.name}>{user.name}</span>
+                                <span className="username" title={user.name}>{user.name || "Người dùng"}</span>
                             </div>
                             <div className="dropdown-content dropdown-right shadow">
                                 <div className="px-3 py-2 border-bottom bg-light">
@@ -95,6 +121,9 @@ export default function Navbar() {
                                 </div>
                                 <Link to="/profile">
                                     <i className="bi bi-person me-2 text-primary"></i>Trang cá nhân
+                                </Link>
+                                <Link to="/saved-articles">
+                                    <i className="bi bi-bookmark-check me-2 text-warning"></i>Bài viết đã lưu
                                 </Link>
                                 <Link to="/profile">
                                     <i className="bi bi-card-text me-2 text-success"></i>Sở thích & Bình luận
@@ -106,10 +135,20 @@ export default function Navbar() {
                             </div>
                         </div>
                     ) : (
-                        <Link to="/login" className="nav-link-item text-white d-flex align-items-center gap-1">
-                            <i className="bi bi-person-circle"></i>
-                            <span className="d-none d-sm-inline">Đăng nhập</span>
-                        </Link>
+                        <div className="nav-dropdown">
+                            <Link to="/login" className="nav-link-item text-white d-flex align-items-center gap-1">
+                                <i className="bi bi-person-circle"></i>
+                                <span className="d-none d-sm-inline">Tài khoản</span>
+                            </Link>
+                            <div className="dropdown-content dropdown-right shadow">
+                                <Link to="/login">
+                                    <i className="bi bi-box-arrow-in-right me-2 text-primary"></i>Đăng nhập
+                                </Link>
+                                <Link to="/register">
+                                    <i className="bi bi-person-plus me-2 text-success"></i>Đăng ký
+                                </Link>
+                            </div>
+                        </div>
                     )}
                 </div>
 
