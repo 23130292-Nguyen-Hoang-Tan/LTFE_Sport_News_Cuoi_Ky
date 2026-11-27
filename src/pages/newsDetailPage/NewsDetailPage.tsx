@@ -9,6 +9,8 @@ import { fetchData } from "../../service/rssService.ts";
 
 export default function NewsDetailPage() {
     const [newsList, setNewsList] = useState<NewsType[]>([]);
+    //hiển thị toàn bộ danh sách mới nhất
+    const [isShowAllLatest, setIsShowAllLatest] = useState<boolean>(false);
     //lấy id bài viết hiện tại
     const { id } = useParams();
 
@@ -19,6 +21,7 @@ export default function NewsDetailPage() {
         }
         loadNews();
     }, []);
+
 
     //tìm bài viết hiện tại đang hiển thị
     const currentArticle = newsList.find((item) => String(item.id) === String(id)) || newsList[0];
@@ -51,7 +54,7 @@ export default function NewsDetailPage() {
                 ...latestNews.filter((item) => item.category !== currentArticle?.category),
             ];
     return (
-        <div className="site-wrapper">
+        <div className="site-wrapper" key={id}>
             <main className="main-content site-layout py-4 px-3">
                 <div className="row g-4">
                     {/* cột trái */}
@@ -84,11 +87,18 @@ export default function NewsDetailPage() {
                                 data={latestNews}
                                 columns={1}
                                 variant="horizontal"
-                                limit={10}
+                                limit={isShowAllLatest ? undefined : 10}
                             />
-                            <button className="btn-load-more w-100 text-uppercase fw-semibold mt-3">
-                                XEM THÊM
-                            </button>
+                            {/*chỉ hiện nút xem thêm khi chưa hiển thị hết bài viết*/}
+                            {!isShowAllLatest && latestNews.length > 10 && (
+                                <button
+                                    type="button"
+                                    className="btn-load-more w-100 text-uppercase fw-semibold mt-3"
+                                    onClick={() => setIsShowAllLatest(true)}
+                                >
+                                    XEM THÊM
+                                </button>
+                            )}
                         </div>
                     </div>
 

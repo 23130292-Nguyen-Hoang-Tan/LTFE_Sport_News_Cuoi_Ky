@@ -1,5 +1,30 @@
 import type { NewsType } from '../data/news';
 
+//phân loại danh mục dựa trên url và tiêu đề
+function detectCategory(guid: string, title: string): string {
+    const text = `${guid} ${title}`.toLowerCase();
+
+    if (text.includes('bong-ro') || text.includes('bóng rổ') || text.includes('nba') || text.includes('vba')) {
+        return 'Bóng rổ';
+    }
+    if (text.includes('quan-vot') || text.includes('quần vợt') || text.includes('tennis') || text.includes('djokovic') || text.includes('alcaraz') || text.includes('sinner')) {
+        return 'Quần vợt (Tennis)';
+    }
+    if (text.includes('cau-long') || text.includes('cầu lông') || text.includes('thùy linh') || text.includes('tiến minh')) {
+        return 'Cầu lông';
+    }
+    if (text.includes('dua-xe') || text.includes('đua xe') || text.includes('f1') || text.includes('motogp')) {
+        return 'Đua xe (F1 / MotoGP)';
+    }
+    if (text.includes('vo-thuat') || text.includes('võ thuật') || text.includes('boxing') || text.includes('ufc') || text.includes('mma')) {
+        return 'Võ thuật (Boxing / UFC)';
+    }
+    if (text.includes('boi-loi') || text.includes('bơi lội') || text.includes('huy hoàng') || text.includes('ánh viên')) {
+        return 'Bơi lội';
+    }
+
+    return 'Bóng đá';
+}
 
 // duyệt từng bài viết và parse dữ liệu theo newstype
 export async function fetchData(): Promise<NewsType[]> {
@@ -47,7 +72,7 @@ export async function fetchData(): Promise<NewsType[]> {
                 summary: cleanText,
                 content: cleanText,
                 imageUrl: extractedImage,
-                category: 'Bóng đá',
+                category: detectCategory(guid, title),
                 createdAt: pubDate,
                 author: author || 'Thể Thao 247',
                 viewsCount: (index + 1) * 123 + 450,

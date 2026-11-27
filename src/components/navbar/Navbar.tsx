@@ -8,10 +8,18 @@ import type { SortOption } from "../../context/FilterContext";
 export default function Navbar() {
     const { user, isAuthenticated, logout } = useAuth();
     const { searchKeyword, setSearchKeyword, sortBy, setSortBy, isSearchOpen,
-        setIsSearchOpen } = useFilter();
+        setIsSearchOpen, selectedCategory,
+        setSelectedCategory, } = useFilter();
     const location = useLocation();
     const isHomePage = location.pathname === '/';
-    const canSort = isHomePage || isSearchOpen;
+    const canSort = isHomePage || isSearchOpen || selectedCategory !== "";
+
+    //xử lý khi bấm chọn danh mục
+    const handleSelectCategory = (e: React.MouseEvent, categoryKey: string) => {
+        e.preventDefault();
+        setSelectedCategory(categoryKey);
+    };
+
     return (
         <nav className="main-navbar">
             <div className="navbar-container">
@@ -37,12 +45,13 @@ export default function Navbar() {
                             DANH MỤC <i className="bi bi-chevron-down ms-1"></i>
                         </Link>
                         <div className="dropdown-content">
-                            <Link to="/category/basketball">Bóng rổ</Link>
-                            <Link to="/category/tennis">Quần vợt (Tennis)</Link>
-                            <Link to="/category/badminton">Cầu lông</Link>
-                            <Link to="/category/motorsport">Đua xe (F1 / MotoGP)</Link>
-                            <Link to="/category/martial-arts">Võ thuật (Boxing / UFC)</Link>
-                            <Link to="/category/swimming">Bơi lội</Link>
+                            <Link to="#" onClick={(e) => handleSelectCategory(e, "Bóng rổ")}>Bóng rổ</Link>
+                            <Link to="#" onClick={(e) => handleSelectCategory(e, "Bóng đá")}>Bóng đá</Link>
+                            <Link to="#" onClick={(e) => handleSelectCategory(e, "Quần vợt (Tennis)")}>Quần vợt (Tennis)</Link>
+                            <Link to="#" onClick={(e) => handleSelectCategory(e, "Cầu lông")}>Cầu lông</Link>
+                            <Link to="#" onClick={(e) => handleSelectCategory(e, "Đua xe (F1 / MotoGP)")}>Đua xe (F1 / MotoGP)</Link>
+                            <Link to="#" onClick={(e) => handleSelectCategory(e, "Võ thuật (Boxing / UFC)")}>Võ thuật (Boxing / UFC)</Link>
+                            <Link to="#" onClick={(e) => handleSelectCategory(e, "Bơi lội")}>Bơi lội</Link>
                         </div>
                     </div>
 

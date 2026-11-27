@@ -13,7 +13,7 @@ interface FilterLayoutProps {
 export default function FilterLayout({ children }: FilterLayoutProps) {
     const [allNews, setAllNews] = useState<NewsType[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const { searchKeyword, sortBy, isSearchOpen, clearFilters } = useFilter();
+    const { searchKeyword, sortBy, isSearchOpen, selectedCategory, clearFilters } = useFilter();
     const location = useLocation();
 
     // tải dữ liệu từ rss
@@ -29,17 +29,22 @@ export default function FilterLayout({ children }: FilterLayoutProps) {
     }, [location.pathname]);
 
     const keyword = searchKeyword.trim().toLowerCase();
+
     //kiểm tra có đang ở trang chủ hay không
     const isHomePage = location.pathname === "/";
-    const showFilterLayout = isSearchOpen || (isHomePage && sortBy !== "default");
+    const showFilterLayout =
+        isSearchOpen || selectedCategory !== "" || (isHomePage && sortBy !== "default");
+
     //nếu không có từ khóa thì sắp xếp toàn bộ danh sách
-    const filteredNews = keyword
-        ? allNews.filter(
-            (item) =>
-                item.title.toLowerCase().includes(keyword) ||
-                item.description?.toLowerCase().includes(keyword)
-        )
-        : allNews;
+    const filteredNews = allNews.filter((item) => {
+        const matchCategory = selectedCategory ? item.category === selectedCategory : true;
+        const matchKeyword = keyword
+            ? item.title.toLowerCase().includes(keyword) ||
+            item.description?.toLowerCase().includes(keyword)
+            : true;
+        return matchCategory && matchKeyword;
+    });
+
     //sắp xếp danh sách theo lựa chọn
     const sortedNews = [...filteredNews].sort((a, b) => {
         if (sortBy === "newest") {
@@ -53,12 +58,14 @@ export default function FilterLayout({ children }: FilterLayoutProps) {
         }
         return 0;
     });
+
     //nhãn hiển thị tương ứng với kiểu sắp xếp đang chọn
     const sortLabels: Record<string, string> = {
         newest: "Mới nhất",
         oldest: "Cũ nhất",
         popular: "Phổ biến",
     };
+
     return (
         <div className="main-content">
             {showFilterLayout ? (
@@ -66,6 +73,12 @@ export default function FilterLayout({ children }: FilterLayoutProps) {
                     <div className="filter-header-bar mb-4">
                         <span className="text-dark">
                             Tìm thấy <b className="text-danger">{sortedNews.length}</b> kết quả
+                            {/* hiển thị tên danh mục đang chọn*/}
+                            {selectedCategory && (
+                                <>
+                                    {" "}trong danh mục <b className="text-danger">{selectedCategory}</b>
+                                </>
+                            )}
                             {/* ...cho từ khóa */}
                             {keyword && (
                                 <>
@@ -95,13 +108,15 @@ export default function FilterLayout({ children }: FilterLayoutProps) {
                         </div>
                     ) : sortedNews.length > 0 ? (
                         <NewsList
-                            // tiêu đề mặc định khi mới bấm vào ô tìm kiếm
+                            // ưu tiên hiênr thị tên danh mục nếu đang lọc danh mục
                             title={
-                                keyword
-                                    ? `KẾT QUẢ TÌM KIẾM: "${searchKeyword.toUpperCase()}"`
-                                    : sortBy !== "default"
-                                        ? `TIN TỨC THEO: ${sortLabels[sortBy]?.toUpperCase()}`
-                                        : "TẤT CẢ TIN TỨC"
+                                selectedCategory
+                                    ? `CHUYÊN MỤC: ${selectedCategory.toUpperCase()}`
+                                    : keyword
+                                        ? `KẾT QUẢ TÌM KIẾM: "${searchKeyword.toUpperCase()}"`
+                                        : sortBy !== "default"
+                                            ? `TIN TỨC THEO: ${sortLabels[sortBy]?.toUpperCase()}`
+                                            : "TẤT CẢ TIN TỨC"
                             }
                             data={sortedNews}
                             columns={1}
@@ -111,8 +126,11 @@ export default function FilterLayout({ children }: FilterLayoutProps) {
                         <div className="filter-empty-state">
                             <i className="bi bi-search fs-1 text-secondary"></i>
                             <h5 className="mt-3 text-dark">Không tìm thấy bài viết nào</h5>
+                            {/* thông báo không timf thấy theo danh mục hoặc từ khái */}
                             <p className="text-muted mb-3">
-                                Không có kết quả nào khớp với từ khóa "{searchKeyword}". Hãy thử từ khóa khác!
+                                {selectedCategory
+                                    ? `Hiện chưa có bài viết mới nào thuộc chuyên mục "${selectedCategory}".`
+                                    : `Không có kết quả nào khớp với từ khóa "${searchKeyword}". Hãy thử từ khóa khác!`}
                             </p>
                             <button
                                 type="button"
