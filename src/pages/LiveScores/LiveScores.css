@@ -43,12 +43,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   padding: 20px;
   border: 1px solid #f0f0f0;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.match-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
 .match-header {
@@ -224,6 +218,14 @@
   width: 10px;
   height: 14px;
   background-color: #e74c3c;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.event-icon.icon-yellow-card {
+  width: 10px;
+  height: 14px;
+  background-color: #f39c12;
   border-radius: 2px;
   display: inline-block;
 }

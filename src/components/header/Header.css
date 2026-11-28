@@ -5,19 +5,16 @@
 }
 
 .header-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 15px;
+    width: 100%;
+    padding: 4px 0;
 }
 
 .logo img {
-    height: 55px; 
+    height: 55px;
+    object-fit: contain;
 }
 
-/* link */
+/* link & button */
 .nav-right a, .nav-right button {
     text-decoration: none;
     font-size: 14px;
@@ -28,22 +25,27 @@
     white-space: nowrap;
 }
 
-/* btn đăng kí đăng nhập */
+/* Nút đăng nhập, đăng ký, đăng xuất */
 .btn-box {
+    background-color: #ffffff;
     color: #1a3c8b !important;
     border: 1px solid #1a3c8b;
     border-radius: 6px;
     padding: 6px 14px;
+    cursor: pointer;
     transition: all 0.2s ease-in-out;
 }
 
-.btn-box.login-btn {
+.btn-box.login-btn,
+.header-logout-btn {
+    background-color: #ffffff;
     border: 1px solid #1a3c8b;
 }
 
-.btn-box:hover {
-    background: #1a3c8b;
-    color: #fff !important;
+.btn-box:hover,
+.header-logout-btn:hover {
+    background-color: #1a3c8b;
+    color: #ffffff !important;
 }
 
 @media (max-width: 991px) {

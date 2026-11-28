@@ -26,7 +26,11 @@ const DEFAULT_USERS: Array<User & { password: string }> = [
         role: 'admin',
         avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
         phone: '0901234567',
-        createdAt: '2026-01-01'
+        createdAt: '2026-01-01',
+        bio: 'Đam mê thể thao, đặc biệt là bóng đá và phân tích chiến thuật các giải đấu hàng đầu châu Âu.',
+        favoriteSports: ['Bóng đá', 'Bóng rổ', 'Esports'],
+        favoriteTeam: 'Real Madrid',
+        location: 'TP. Hồ Chí Minh'
     },
     {
         id: 'user-002',
@@ -36,7 +40,11 @@ const DEFAULT_USERS: Array<User & { password: string }> = [
         role: 'user',
         avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&auto=format&fit=crop&q=80',
         phone: '0912345678',
-        createdAt: '2026-02-15'
+        createdAt: '2026-02-15',
+        bio: 'Siuuuu! Thể thao là cuộc sống, luôn nỗ lực tập luyện và rèn luyện thể lực mỗi ngày.',
+        favoriteSports: ['Bóng đá', 'Bơi lội'],
+        favoriteTeam: 'Al-Nassr / Real Madrid',
+        location: 'Madeira, Bồ Đào Nha'
     },
     {
         id: 'user-003',
@@ -46,7 +54,11 @@ const DEFAULT_USERS: Array<User & { password: string }> = [
         role: 'user',
         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
         phone: '0987654321',
-        createdAt: '2026-03-10'
+        createdAt: '2026-03-10',
+        bio: 'Người hâm mộ thể thao phong trào, thích đá bóng và đánh cầu lông cùng bạn bè vào cuối tuần.',
+        favoriteSports: ['Bóng đá', 'Cầu lông'],
+        favoriteTeam: 'Manchester United',
+        location: 'Đà Nẵng'
     }
 ];
 
@@ -99,7 +111,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 role: foundUser.role,
                 avatar: foundUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
                 phone: foundUser.phone,
-                createdAt: foundUser.createdAt
+                createdAt: foundUser.createdAt,
+                bio: foundUser.bio || 'Người hâm mộ thể thao 247.',
+                favoriteSports: foundUser.favoriteSports || ['Bóng đá'],
+                favoriteTeam: foundUser.favoriteTeam || 'Chưa cập nhật',
+                location: foundUser.location || 'Việt Nam'
             };
 
             setUser(safeUser);
@@ -143,7 +159,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 password,
                 role: 'user',
                 avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
-                createdAt: new Date().toISOString().split('T')[0]
+                createdAt: new Date().toISOString().split('T')[0],
+                bio: 'Thành viên mới tham gia cộng đồng Thể Thao 247.',
+                favoriteSports: ['Bóng đá'],
+                favoriteTeam: 'Chưa cập nhật',
+                location: 'Việt Nam'
             };
 
             registeredUsers.push(newUser);
@@ -156,7 +176,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 email: newUser.email,
                 role: newUser.role,
                 avatar: newUser.avatar,
-                createdAt: newUser.createdAt
+                createdAt: newUser.createdAt,
+                bio: newUser.bio,
+                favoriteSports: newUser.favoriteSports,
+                favoriteTeam: newUser.favoriteTeam,
+                location: newUser.location
             };
 
             setUser(safeUser);
@@ -181,8 +205,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const updatedUser: User = {
                 ...user,
                 name: data.name?.trim() || user.name,
-                phone: data.phone?.trim() ?? user.phone,
-                avatar: data.avatar?.trim() || user.avatar
+                phone: data.phone !== undefined ? data.phone.trim() : user.phone,
+                avatar: data.avatar?.trim() || user.avatar,
+                bio: data.bio !== undefined ? data.bio.trim() : user.bio,
+                favoriteSports: data.favoriteSports !== undefined ? data.favoriteSports : user.favoriteSports,
+                favoriteTeam: data.favoriteTeam !== undefined ? data.favoriteTeam.trim() : user.favoriteTeam,
+                location: data.location !== undefined ? data.location.trim() : user.location
             };
 
             setUser(updatedUser);

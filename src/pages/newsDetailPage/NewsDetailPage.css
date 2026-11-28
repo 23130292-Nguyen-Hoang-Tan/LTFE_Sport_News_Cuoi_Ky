@@ -1,3 +1,58 @@
+.article-action-bar {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+.btn-save-later {
+    background-color: #ffffff;
+    color: #1a3c8b;
+    border: 1px solid #1a3c8b;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-save-later:hover {
+    background-color: #1a3c8b;
+    color: #ffffff;
+}
+
+.btn-save-later.saved {
+    background-color: #10b981;
+    border-color: #10b981;
+    color: #ffffff;
+}
+
+.btn-save-later.saved:hover {
+    background-color: #059669;
+    border-color: #059669;
+}
+
+.btn-view-saved {
+    background-color: #ffffff;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-view-saved:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
 .btn-load-more {
     background-color: #f4f4f4;
     color: #0b4a7d;

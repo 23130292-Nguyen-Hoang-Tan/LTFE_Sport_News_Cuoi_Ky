@@ -170,6 +170,105 @@
 .form-D { background-color: #9ca3af; } /* Hòa - Xám */
 .form-L { background-color: #ef4444; } /* Thua - Đỏ */
 
+/* Modal danh sách cầu thủ */
+.squad-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    z-index: 1050;
+}
+
+.squad-modal-box {
+    background: #ffffff;
+    width: 100%;
+    max-width: 540px;
+    max-height: 80vh;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.squad-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #f8f9fa;
+}
+
+.squad-modal-header h4 {
+    font-size: 17px;
+    color: #1f2937;
+}
+
+.squad-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.squad-modal-close:hover {
+    color: #111827;
+}
+
+.squad-modal-body {
+    padding: 14px 18px;
+    overflow-y: auto;
+}
+
+.squad-player-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.squad-player-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+}
+
+.squad-player-row:last-child {
+    border-bottom: none;
+}
+
+.squad-player-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.squad-player-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+}
+
+.squad-player-name {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.squad-player-meta {
+    color: #6b7280;
+    font-size: 13px;
+}
+
 /* Responsive */
 @media (max-width: 992px) {
     .standings-content-grid {

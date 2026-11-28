@@ -12,29 +12,19 @@ export default function Sidebar() {
                     </div>
                 </div>
                 <div className="utility-list p-3">
-                    <Link to="#" className="utility-item d-flex align-items-center text-decoration-none">
-                        <i className="bi bi-calendar3 utility-icon me-3"></i>
-                        <span>Lịch thi đấu</span>
-                    </Link>
-
-                    <Link to="#" className="utility-item d-flex align-items-center text-decoration-none">
+                    <Link to="/live-scores" className="utility-item d-flex align-items-center text-decoration-none">
                         <i className="bi bi-broadcast text-danger utility-icon me-3"></i>
-                        <span>Trực tiếp bóng đá</span>
+                        <span>Tỉ số trực tiếp</span>
                     </Link>
 
-                    <Link to="#" className="utility-item d-flex align-items-center text-decoration-none">
-                        <i className="bi bi-award utility-icon me-3"></i>
-                        <span>Kết quả bóng đá</span>
+                    <Link to="/match-detail" className="utility-item d-flex align-items-center text-decoration-none">
+                        <i className="bi bi-clipboard-data utility-icon me-3"></i>
+                        <span>Chi tiết trận đấu</span>
                     </Link>
 
-                    <Link to="#" className="utility-item d-flex align-items-center text-decoration-none">
-                        <i className="bi bi-camera-video utility-icon me-3"></i>
-                        <span>Livescore</span>
-                    </Link>
-
-                    <Link to="#" className="utility-item d-flex align-items-center text-decoration-none">
+                    <Link to="/standings" className="utility-item d-flex align-items-center text-decoration-none">
                         <i className="bi bi-trophy utility-icon me-3"></i>
-                        <span>Bảng xếp hạng bóng đá</span>
+                        <span>Bảng xếp hạng đội bóng</span>
                     </Link>
                 </div>
             </div>

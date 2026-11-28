@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import type { Comment } from '../../types/comment';
 import './Profile.css';
 
 // Danh sách avatar mẫu để người dùng chọn nhanh
@@ -9,6 +10,18 @@ const PRESET_AVATARS = [
     'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=120&auto=format&fit=crop&q=80',
     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
     'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&auto=format&fit=crop&q=80'
+];
+
+// Danh sách các môn thể thao phổ biến
+const ALL_SPORTS = [
+    { name: 'Bóng đá', icon: '⚽' },
+    { name: 'Bóng rổ', icon: '🏀' },
+    { name: 'Cầu lông', icon: '🏸' },
+    { name: 'Quần vợt (Tennis)', icon: '🎾' },
+    { name: 'Bơi lội', icon: '🏊' },
+    { name: 'Bóng chuyền', icon: '🏐' },
+    { name: 'Esports', icon: '🎮' },
+    { name: 'Chạy bộ', icon: '🏃' }
 ];
 
 // Danh sách bài viết đã lưu mẫu
@@ -33,14 +46,18 @@ export default function Profile() {
     const { user, isAuthenticated, logout, updateProfile, changePassword } = useAuth();
     const navigate = useNavigate();
 
-    // Tab hiện tại: 'info' | 'password' | 'saved'
-    const [activeTab, setActiveTab] = useState<'info' | 'password' | 'saved'>('info');
+    // Tab hiện tại: 'info' | 'password' | 'saved' | 'comments'
+    const [activeTab, setActiveTab] = useState<'info' | 'password' | 'saved' | 'comments'>('info');
 
     // Chế độ chỉnh sửa thông tin cá nhân
     const [isEditing, setIsEditing] = useState(false);
     const [editName, setEditName] = useState(user?.name || '');
     const [editPhone, setEditPhone] = useState(user?.phone || '');
     const [editAvatar, setEditAvatar] = useState(user?.avatar || '');
+    const [editBio, setEditBio] = useState(user?.bio || '');
+    const [editFavoriteSports, setEditFavoriteSports] = useState<string[]>(user?.favoriteSports || ['Bóng đá']);
+    const [editFavoriteTeam, setEditFavoriteTeam] = useState(user?.favoriteTeam || '');
+    const [editLocation, setEditLocation] = useState(user?.location || '');
 
     // Form đổi mật khẩu
     const [oldPassword, setOldPassword] = useState('');
@@ -49,6 +66,20 @@ export default function Profile() {
 
     // Danh sách bài viết đã lưu
     const [savedArticles, setSavedArticles] = useState(INITIAL_SAVED_ARTICLES);
+
+    // Danh sách bình luận của chính người dùng
+    const [userComments, setUserComments] = useState<Comment[]>(() => {
+        try {
+            const raw = localStorage.getItem('thethao247_comments_list');
+            if (raw && user) {
+                const list: Comment[] = JSON.parse(raw);
+                return list.filter(c => c.authorId === user.id);
+            }
+        } catch (e) {
+            console.error('Lỗi khi đọc comments:', e);
+        }
+        return [];
+    });
 
     // Thông báo phản hồi
     const [alertMsg, setAlertMsg] = useState<{ type: 'success' | 'danger'; text: string } | null>(null);
@@ -75,6 +106,30 @@ export default function Profile() {
         );
     }
 
+    // Xử lý bật/tắt môn thể thao yêu thích khi chọn
+    const handleToggleSport = (sportName: string) => {
+        setEditFavoriteSports(prev => {
+            if (prev.includes(sportName)) {
+                return prev.filter(s => s !== sportName);
+            } else {
+                return [...prev, sportName];
+            }
+        });
+    };
+
+    // Khi người dùng bấm nút "Chỉnh sửa"
+    const handleStartEdit = () => {
+        setEditName(user.name);
+        setEditPhone(user.phone || '');
+        setEditAvatar(user.avatar || '');
+        setEditBio(user.bio || '');
+        setEditFavoriteSports(user.favoriteSports || ['Bóng đá']);
+        setEditFavoriteTeam(user.favoriteTeam || '');
+        setEditLocation(user.location || '');
+        setIsEditing(true);
+        setAlertMsg(null);
+    };
+
     // Xử lý lưu thông tin cá nhân
     const handleSaveProfile = (e: FormEvent) => {
         e.preventDefault();
@@ -88,7 +143,11 @@ export default function Profile() {
         const res = updateProfile({
             name: editName,
             phone: editPhone,
-            avatar: editAvatar
+            avatar: editAvatar,
+            bio: editBio,
+            favoriteSports: editFavoriteSports,
+            favoriteTeam: editFavoriteTeam,
+            location: editLocation
         });
 
         if (res.success) {
@@ -136,6 +195,24 @@ export default function Profile() {
         setAlertMsg({ type: 'success', text: 'Đã bỏ lưu bài viết!' });
     };
 
+    // Xử lý xóa bình luận cá nhân
+    const handleDeleteUserComment = (id: string) => {
+        if (window.confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
+            try {
+                const raw = localStorage.getItem('thethao247_comments_list');
+                if (raw) {
+                    const list: Comment[] = JSON.parse(raw);
+                    const updated = list.filter(c => c.id !== id);
+                    localStorage.setItem('thethao247_comments_list', JSON.stringify(updated));
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            setUserComments(prev => prev.filter(c => c.id !== id));
+            setAlertMsg({ type: 'success', text: 'Đã xóa bình luận thành công!' });
+        }
+    };
+
     const handleLogout = () => {
         logout();
         navigate('/');
@@ -151,7 +228,7 @@ export default function Profile() {
                             <i className="bi bi-person-circle text-primary me-2"></i>
                             Hồ Sơ Người Dùng
                         </h4>
-                        <span className="text-muted small">Quản lý thông tin tài khoản và bài viết của bạn</span>
+                        <span className="text-muted small">Quản lý thông tin tài khoản, sở thích thể thao và bài viết của bạn</span>
                     </div>
                     <Link to="/" className="btn btn-outline-secondary btn-sm">
                         <i className="bi bi-arrow-left me-1"></i> Trang chủ
@@ -180,11 +257,30 @@ export default function Profile() {
                             </div>
                             <h5 className="fw-bold text-dark mb-1">{user.name}</h5>
                             <p className="text-muted small mb-2">{user.email}</p>
-                            <div>
+                            
+                            <div className="mb-2">
                                 <span className={`badge ${user.role === 'admin' ? 'bg-danger' : 'bg-primary'}`}>
                                     {user.role === 'admin' ? 'Quản trị viên' : 'Thành viên'}
                                 </span>
                             </div>
+
+                            {user.location && (
+                                <div className="text-muted small mb-1">
+                                    <i className="bi bi-geo-alt text-danger me-1"></i>{user.location}
+                                </div>
+                            )}
+
+                            {user.favoriteTeam && user.favoriteTeam !== 'Chưa cập nhật' && (
+                                <div className="badge bg-light text-primary border mb-2">
+                                    <i className="bi bi-trophy-fill text-warning me-1"></i>{user.favoriteTeam}
+                                </div>
+                            )}
+
+                            {user.bio && (
+                                <div className="profile-bio-summary text-muted small fst-italic px-2 py-2 mt-2 border-top">
+                                    "{user.bio.length > 70 ? user.bio.substring(0, 70) + '...' : user.bio}"
+                                </div>
+                            )}
                         </div>
 
                         {/* Menu Tab */}
@@ -216,6 +312,15 @@ export default function Profile() {
                             </button>
                             <button
                                 type="button"
+                                className={`list-group-item list-group-item-action d-flex align-items-center gap-2 ${activeTab === 'comments' ? 'active' : ''}`}
+                                onClick={() => { setActiveTab('comments'); setAlertMsg(null); }}
+                            >
+                                <i className="bi bi-chat-dots-fill"></i>
+                                <span>Bình luận của tôi</span>
+                                <span className="badge bg-secondary ms-auto">{userComments.length}</span>
+                            </button>
+                            <button
+                                type="button"
                                 className="list-group-item list-group-item-action text-danger d-flex align-items-center gap-2"
                                 onClick={handleLogout}
                             >
@@ -234,19 +339,13 @@ export default function Profile() {
                                     <div className="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
                                         <h5 className="fw-bold text-dark mb-0">
                                             <i className="bi bi-card-text text-primary me-2"></i>
-                                            Thông Tin Chi Tiết
+                                            Thông Tin Chi Tiết & Sở Thích
                                         </h5>
                                         {!isEditing ? (
                                             <button
                                                 type="button"
                                                 className="btn btn-outline-primary btn-sm"
-                                                onClick={() => {
-                                                    setEditName(user.name);
-                                                    setEditPhone(user.phone || '');
-                                                    setEditAvatar(user.avatar || '');
-                                                    setIsEditing(true);
-                                                    setAlertMsg(null);
-                                                }}
+                                                onClick={handleStartEdit}
                                             >
                                                 <i className="bi bi-pencil-square me-1"></i> Chỉnh sửa
                                             </button>
@@ -263,80 +362,202 @@ export default function Profile() {
 
                                     {!isEditing ? (
                                         /* CHẾ ĐỘ XEM THÔNG TIN */
-                                        <div className="row g-3">
-                                            <div className="col-12 col-sm-6">
-                                                <div className="info-block">
-                                                    <span className="info-label text-muted">Họ và tên:</span>
-                                                    <div className="info-val fw-bold">{user.name}</div>
+                                        <div>
+                                            {/* Khối mô tả / giới thiệu bản thân */}
+                                            <div className="bio-card mb-4 p-3 rounded">
+                                                <div className="d-flex align-items-center gap-2 mb-1 text-primary fw-semibold small">
+                                                    <i className="bi bi-chat-quote-fill"></i> Giới thiệu bản thân
                                                 </div>
+                                                <p className="bio-text mb-0">
+                                                    {user.bio || 'Chưa cập nhật giới thiệu bản thân. Bấm "Chỉnh sửa" để chia sẻ đôi nét về bạn.'}
+                                                </p>
                                             </div>
-                                            <div className="col-12 col-sm-6">
-                                                <div className="info-block">
-                                                    <span className="info-label text-muted">Địa chỉ Email:</span>
-                                                    <div className="info-val">{user.email}</div>
-                                                </div>
-                                            </div>
-                                            <div className="col-12 col-sm-6">
-                                                <div className="info-block">
-                                                    <span className="info-label text-muted">Số điện thoại:</span>
-                                                    <div className="info-val">{user.phone || 'Chưa cập nhật'}</div>
-                                                </div>
-                                            </div>
-                                            <div className="col-12 col-sm-6">
-                                                <div className="info-block">
-                                                    <span className="info-label text-muted">Vai trò tài khoản:</span>
-                                                    <div className="info-val">
-                                                        <span className="badge bg-light text-dark border">
-                                                            {user.role === 'admin' ? 'Quản trị viên (Admin)' : 'Thành viên'}
-                                                        </span>
+
+                                            {/* Khối chi tiết dạng lưới */}
+                                            <div className="row g-3">
+                                                <div className="col-12 col-sm-6">
+                                                    <div className="info-block">
+                                                        <span className="info-label text-muted">Họ và tên:</span>
+                                                        <div className="info-val fw-bold">{user.name}</div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div className="col-12 col-sm-6">
-                                                <div className="info-block">
-                                                    <span className="info-label text-muted">Mã tài khoản (ID):</span>
-                                                    <div className="info-val text-secondary small">{user.id}</div>
+                                                <div className="col-12 col-sm-6">
+                                                    <div className="info-block">
+                                                        <span className="info-label text-muted">Địa chỉ Email:</span>
+                                                        <div className="info-val">{user.email}</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="col-12 col-sm-6">
-                                                <div className="info-block">
-                                                    <span className="info-label text-muted">Ngày tham gia:</span>
-                                                    <div className="info-val">{user.createdAt || '01/01/2026'}</div>
+                                                <div className="col-12 col-sm-6">
+                                                    <div className="info-block">
+                                                        <span className="info-label text-muted">Số điện thoại:</span>
+                                                        <div className="info-val">{user.phone || 'Chưa cập nhật'}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-12 col-sm-6">
+                                                    <div className="info-block">
+                                                        <span className="info-label text-muted">
+                                                            <i className="bi bi-geo-alt-fill text-danger me-1"></i> Khu vực / Tỉnh thành:
+                                                        </span>
+                                                        <div className="info-val">{user.location || 'Chưa cập nhật'}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-12 col-sm-6">
+                                                    <div className="info-block">
+                                                        <span className="info-label text-muted">
+                                                            <i className="bi bi-trophy-fill text-warning me-1"></i> Đội thể thao yêu thích:
+                                                        </span>
+                                                        <div className="info-val fw-semibold text-primary">
+                                                            {user.favoriteTeam || 'Chưa cập nhật'}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-12 col-sm-6">
+                                                    <div className="info-block">
+                                                        <span className="info-label text-muted">Vai trò tài khoản:</span>
+                                                        <div className="info-val">
+                                                            <span className="badge bg-light text-dark border">
+                                                                {user.role === 'admin' ? 'Quản trị viên (Admin)' : 'Thành viên'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-12 col-sm-6">
+                                                    <div className="info-block">
+                                                        <span className="info-label text-muted">Mã tài khoản (ID):</span>
+                                                        <div className="info-val text-secondary small">{user.id}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-12 col-sm-6">
+                                                    <div className="info-block">
+                                                        <span className="info-label text-muted">Ngày tham gia:</span>
+                                                        <div className="info-val">{user.createdAt || '01/01/2026'}</div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Môn thể thao yêu thích */}
+                                                <div className="col-12">
+                                                    <div className="info-block">
+                                                        <span className="info-label text-muted mb-2 d-block">
+                                                            <i className="bi bi-heart-fill text-danger me-1"></i> Môn thể thao yêu thích:
+                                                        </span>
+                                                        <div className="d-flex flex-wrap gap-2">
+                                                            {user.favoriteSports && user.favoriteSports.length > 0 ? (
+                                                                user.favoriteSports.map((sport, i) => (
+                                                                    <span key={i} className="badge sport-badge shadow-sm">
+                                                                        {sport}
+                                                                    </span>
+                                                                ))
+                                                            ) : (
+                                                                <span className="text-muted small">Chưa chọn môn thể thao nào</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     ) : (
                                         /* CHẾ ĐỘ FORM CHỈNH SỬA */
                                         <form onSubmit={handleSaveProfile} className="edit-profile-form">
+                                            {/* Giới thiệu / Mô tả bản thân */}
                                             <div className="mb-3">
-                                                <label className="form-label fw-semibold" htmlFor="edit-name">
-                                                    Họ và tên:
+                                                <label className="form-label fw-semibold" htmlFor="edit-bio">
+                                                    <i className="bi bi-chat-quote me-1"></i> Mô tả / Giới thiệu bản thân:
                                                 </label>
-                                                <input
-                                                    id="edit-name"
-                                                    type="text"
+                                                <textarea
+                                                    id="edit-bio"
+                                                    rows={3}
                                                     className="form-control"
-                                                    value={editName}
-                                                    onChange={(e) => setEditName(e.target.value)}
-                                                    required
+                                                    placeholder="Chia sẻ đôi nét về bạn, sở thích thể thao, phong cách cổ vũ..."
+                                                    value={editBio}
+                                                    onChange={(e) => setEditBio(e.target.value)}
+                                                    maxLength={300}
                                                 />
+                                                <div className="text-muted small text-end mt-1">{editBio.length}/300 ký tự</div>
                                             </div>
 
-                                            <div className="mb-3">
-                                                <label className="form-label fw-semibold" htmlFor="edit-phone">
-                                                    Số điện thoại:
+                                            {/* Môn thể thao yêu thích (chọn nhanh) */}
+                                            <div className="mb-4">
+                                                <label className="form-label fw-semibold d-block">
+                                                    <i className="bi bi-heart me-1"></i> Môn thể thao yêu thích (bấm để chọn/bỏ chọn):
                                                 </label>
-                                                <input
-                                                    id="edit-phone"
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="Ví dụ: 0901234567"
-                                                    value={editPhone}
-                                                    onChange={(e) => setEditPhone(e.target.value)}
-                                                />
+                                                <div className="d-flex flex-wrap gap-2">
+                                                    {ALL_SPORTS.map((sport) => {
+                                                        const isSelected = editFavoriteSports.includes(sport.name);
+                                                        return (
+                                                            <button
+                                                                key={sport.name}
+                                                                type="button"
+                                                                className={`btn btn-sm sport-toggle-btn ${isSelected ? 'btn-primary' : 'btn-outline-secondary'}`}
+                                                                onClick={() => handleToggleSport(sport.name)}
+                                                            >
+                                                                <span className="me-1">{sport.icon}</span>
+                                                                {sport.name}
+                                                                {isSelected && <i className="bi bi-check-lg ms-1"></i>}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
                                             </div>
 
-                                            <div className="mb-3">
+                                            <div className="row g-3">
+                                                <div className="col-12 col-sm-6">
+                                                    <label className="form-label fw-semibold" htmlFor="edit-name">
+                                                        Họ và tên:
+                                                    </label>
+                                                    <input
+                                                        id="edit-name"
+                                                        type="text"
+                                                        className="form-control"
+                                                        value={editName}
+                                                        onChange={(e) => setEditName(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+
+                                                <div className="col-12 col-sm-6">
+                                                    <label className="form-label fw-semibold" htmlFor="edit-phone">
+                                                        Số điện thoại:
+                                                    </label>
+                                                    <input
+                                                        id="edit-phone"
+                                                        type="text"
+                                                        className="form-control"
+                                                        placeholder="Ví dụ: 0901234567"
+                                                        value={editPhone}
+                                                        onChange={(e) => setEditPhone(e.target.value)}
+                                                    />
+                                                </div>
+
+                                                <div className="col-12 col-sm-6">
+                                                    <label className="form-label fw-semibold" htmlFor="edit-team">
+                                                        <i className="bi bi-trophy me-1"></i> Đội thể thao / CLB yêu thích:
+                                                    </label>
+                                                    <input
+                                                        id="edit-team"
+                                                        type="text"
+                                                        className="form-control"
+                                                        placeholder="Ví dụ: Real Madrid, Manchester United..."
+                                                        value={editFavoriteTeam}
+                                                        onChange={(e) => setEditFavoriteTeam(e.target.value)}
+                                                    />
+                                                </div>
+
+                                                <div className="col-12 col-sm-6">
+                                                    <label className="form-label fw-semibold" htmlFor="edit-location">
+                                                        <i className="bi bi-geo-alt me-1"></i> Khu vực / Tỉnh thành:
+                                                    </label>
+                                                    <input
+                                                        id="edit-location"
+                                                        type="text"
+                                                        className="form-control"
+                                                        placeholder="Ví dụ: TP. Hồ Chí Minh, Hà Nội..."
+                                                        value={editLocation}
+                                                        onChange={(e) => setEditLocation(e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-3">
                                                 <label className="form-label fw-semibold" htmlFor="edit-avatar">
                                                     Link ảnh đại diện (URL):
                                                 </label>
@@ -364,7 +585,7 @@ export default function Profile() {
                                                 </div>
                                             </div>
 
-                                            <div className="d-flex gap-2 mt-4">
+                                            <div className="d-flex gap-2 mt-4 pt-2 border-top">
                                                 <button type="submit" className="btn btn-primary px-4">
                                                     <i className="bi bi-check2-circle me-1"></i> Lưu thay đổi
                                                 </button>
@@ -489,6 +710,53 @@ export default function Profile() {
                                                     >
                                                         <i className="bi bi-trash"></i>
                                                     </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* TAB 4: BÌNH LUẬN CỦA TÔI */}
+                            {activeTab === 'comments' && (
+                                <div>
+                                    <div className="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                                        <h5 className="fw-bold text-dark mb-0">
+                                            <i className="bi bi-chat-dots-fill text-primary me-2"></i>
+                                            Bình Luận Đã Gửi ({userComments.length})
+                                        </h5>
+                                    </div>
+
+                                    {userComments.length === 0 ? (
+                                        <div className="text-center py-5 text-muted">
+                                            <i className="bi bi-chat-square-text display-4 d-block mb-2 text-secondary"></i>
+                                            <p className="mb-2">Bạn chưa gửi bình luận nào.</p>
+                                            <Link to="/live-scores" className="btn btn-outline-primary btn-sm">
+                                                Xem tỉ số & bình luận trận đấu
+                                            </Link>
+                                        </div>
+                                    ) : (
+                                        <div className="user-comments-list d-flex flex-column gap-3">
+                                            {userComments.map(cmt => (
+                                                <div key={cmt.id} className="p-3 border rounded bg-white shadow-sm">
+                                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                                                        <span className="badge bg-light text-primary border">
+                                                            <i className="bi bi-clock me-1"></i>{cmt.createdAt}
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-danger btn-sm"
+                                                            onClick={() => handleDeleteUserComment(cmt.id)}
+                                                            title="Xóa bình luận này"
+                                                        >
+                                                            <i className="bi bi-trash me-1"></i>Xóa
+                                                        </button>
+                                                    </div>
+                                                    <p className="text-secondary mb-2 fst-italic">"{cmt.content}"</p>
+                                                    <div className="d-flex align-items-center gap-2 text-muted small">
+                                                        <i className="bi bi-heart-fill text-danger"></i>
+                                                        <span>{cmt.likes} lượt thích</span>
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>

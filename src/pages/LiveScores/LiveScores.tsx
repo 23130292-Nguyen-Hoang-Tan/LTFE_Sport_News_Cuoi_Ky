@@ -1,149 +1,235 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './LiveScores.css';
+import { Link } from 'react-router-dom';
+import CommentSection from '../../components/comments/CommentSection';
 
-interface MatchEvent {
+interface LiveEvent {
   id: number;
-  type: 'Goal' | 'RedCard';
+  type: 'Goal' | 'YellowCard' | 'RedCard';
   player: string;
   time: string;
   isHome: boolean;
 }
 
-interface Team {
-  id: number;
+interface LiveTeam {
   name: string;
   logo: string;
   score: number;
+  yellowCards: number;
   redCards: number;
 }
 
-interface Match {
+interface LiveMatch {
   id: number;
-  league: string;
-  status: string; 
-  time: string;   
+  leagueName: string;
+  leagueLogo: string;
+  status: string;
+  time: string;
   stadium: string;
   htScore?: string;
-  homeTeam: Team;
-  awayTeam: Team;
-  events: MatchEvent[];
+  homeTeam: LiveTeam;
+  awayTeam: LiveTeam;
+  events: LiveEvent[];
 }
 
-const LiveScores: React.FC = () => {
-  const [matches] = useState<Match[]>([
-    {
-      id: 1,
-      league: "Ngoại Hạng Anh",
-      status: "LIVE",
-      time: "67'",
-      stadium: "Emirates Stadium",
-      htScore: "1 - 0",
-      homeTeam: { id: 101, name: "Arsenal", logo: "https://via.placeholder.com/30", score: 2, redCards: 0 },
-      awayTeam: { id: 102, name: "Chelsea", logo: "https://via.placeholder.com/30", score: 1, redCards: 1 },
-      events: [
-        { id: 1, type: 'Goal', player: 'B. Saka', time: "14'", isHome: true },
-        { id: 2, type: 'RedCard', player: 'M. Caicedo', time: "42'", isHome: false },
-        { id: 3, type: 'Goal', player: 'C. Palmer', time: "55'", isHome: false },
-        { id: 4, type: 'Goal', player: 'M. Ødegaard', time: "65'", isHome: true },
-      ]
-    },
-    {
-      id: 2,
-      league: "La Liga",
-      status: "HT",
-      time: "HT",
-      stadium: "Santiago Bernabéu",
-      homeTeam: { id: 201, name: "Real Madrid", logo: "https://via.placeholder.com/30", score: 0, redCards: 0 },
-      awayTeam: { id: 202, name: "Barcelona", logo: "https://via.placeholder.com/30", score: 0, redCards: 0 },
-      events: []
+export default function LiveScores() {
+  const [matches, setMatches] = useState<LiveMatch[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Hàm gọi API lấy tỉ số (được gọi khi load trang hoặc khi người dùng bấm nút làm mới)
+  const fetchLiveScores = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch('https://v3.football.api-sports.io/fixtures?live=all', {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key': 'c27b9be1da61631964ca91448f39dbb8',
+          'x-rapidapi-host': 'v3.football.api-sports.io'
+        }
+      });
+
+      const data = await response.json() as {
+        errors?: Record<string, string>;
+        response: Array<{
+          fixture: { id: number; status: { short: string; elapsed: number | null }; venue: { name: string | null } };
+          league: { country: string; name: string; logo: string };
+          teams: { home: { id: number; name: string; logo: string }; away: { id: number; name: string; logo: string } };
+          goals: { home: number | null; away: number | null };
+          score: { halftime: { home: number | null; away: number | null } };
+          events?: Array<{
+            type: string;
+            detail?: string;
+            player: { name: string | null };
+            team: { id: number };
+            time: { elapsed: number };
+          }>;
+        }>;
+      };
+      if (data.errors && Object.keys(data.errors).length > 0) {
+        throw new Error('Hết lượt gọi API hoặc lỗi hệ thống.');
+      }
+
+      const list: LiveMatch[] = data.response.map((item) => {
+        const homeId = item.teams.home.id;
+        const events: LiveEvent[] = (item.events || []).map((ev, idx) => {
+          let type: 'Goal' | 'YellowCard' | 'RedCard' = 'Goal';
+          if (ev.type === 'Card') {
+            type = ev.detail?.includes('Yellow') ? 'YellowCard' : 'RedCard';
+          }
+          return {
+            id: idx,
+            type: ev.type === 'Goal' ? 'Goal' : type,
+            player: ev.player.name || 'Cầu thủ',
+            time: `${ev.time.elapsed}'`,
+            isHome: ev.team.id === homeId
+          };
+        });
+
+        return {
+          id: item.fixture.id,
+          leagueName: `${item.league.country} - ${item.league.name}`,
+          leagueLogo: item.league.logo,
+          status: item.fixture.status.short,
+          time: `${item.fixture.status.elapsed || 0}'`,
+          stadium: item.fixture.venue.name || 'Sân vận động',
+          htScore: item.score.halftime.home !== null ? `${item.score.halftime.home} - ${item.score.halftime.away}` : undefined,
+          homeTeam: {
+            name: item.teams.home.name,
+            logo: item.teams.home.logo,
+            score: item.goals.home ?? 0,
+            yellowCards: events.filter((e) => e.isHome && e.type === 'YellowCard').length,
+            redCards: events.filter((e) => e.isHome && e.type === 'RedCard').length
+          },
+          awayTeam: {
+            name: item.teams.away.name,
+            logo: item.teams.away.logo,
+            score: item.goals.away ?? 0,
+            yellowCards: events.filter((e) => !e.isHome && e.type === 'YellowCard').length,
+            redCards: events.filter((e) => !e.isHome && e.type === 'RedCard').length
+          },
+          events
+        };
+      });
+
+      setMatches(list);
+    } catch {
+      setError('Không thể tải dữ liệu tỉ số trực tiếp từ máy chủ.');
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  // Chỉ gọi API một lần duy nhất khi vừa mở trang (mount component)
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchLiveScores();
+    // Đã xóa bỏ setInterval ở đây để tiết kiệm tối đa lượt gọi API.
+  }, []);
 
   return (
     <div className="live-scores-container">
-      <h2>Tỉ số trực tiếp</h2>
-      
-      {/* Thêm phần chú thích ký hiệu */}
-      <div className="legend-container">
-        <div className="legend-item">
-          <span className="blinking-dot"></span> Đang diễn ra
-        </div>
-        <div className="legend-item">
-          <span className="event-icon icon-goal"></span> Bàn thắng
-        </div>
-        <div className="legend-item">
-          <span className="event-icon icon-red-card"></span> Thẻ đỏ
-        </div>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h2>Tỉ số trực tiếp</h2>
+        {/* Nút bấm chủ động làm mới dữ liệu giúp tiết kiệm quota */}
+        <button className="btn btn-outline-primary btn-sm" onClick={fetchLiveScores} disabled={loading}>
+          <i className="bi bi-arrow-clockwise me-1"></i> {loading ? 'Đang cập nhật...' : 'Làm mới dữ liệu'}
+        </button>
       </div>
+      
+      <div className="legend-container">
+        <div className="legend-item"><span className="blinking-dot"></span> Đang diễn ra</div>
+        <div className="legend-item"><span className="event-icon icon-goal"></span> Bàn thắng</div>
+        <div className="legend-item"><span className="event-icon icon-yellow-card"></span> Thẻ vàng</div>
+        <div className="legend-item"><span className="event-icon icon-red-card"></span> Thẻ đỏ</div>
+      </div>
+
+      {loading && matches.length === 0 && <div className="text-center py-4 text-muted">Đang tải dữ liệu...</div>}
+      {error && <div className="alert alert-warning text-center">{error}</div>}
+
+      {!loading && !error && matches.length === 0 && (
+        <div className="text-center py-4 text-muted">Hiện không có trận đấu nào đang diễn ra.</div>
+      )}
 
       <div className="matches-list">
         {matches.map((match) => (
-          <div key={match.id} className="match-card">
-            <div className="match-header">
-              <span className="league-name">{match.league}</span>
-              <span className="match-stadium">{match.stadium}</span>
-              <span className={`match-time ${match.status === 'LIVE' ? 'is-live' : ''}`}>
-                {match.status === 'LIVE' ? (
-                  <> <span className="blinking-dot"></span> {match.time} </>
-                ) : (
-                  match.time
-                )}
-              </span>
-            </div>
-            
-            <div className="match-body">
-              <div className="team home">
-                <span className="team-name">{match.homeTeam.name}</span>
-                {match.homeTeam.redCards > 0 && <span className="red-card-icon"></span>}
-                <img src={match.homeTeam.logo} alt={match.homeTeam.name} />
+          <Link to={`/match-detail/${match.id}`} key={match.id} className="text-decoration-none text-dark">
+            <div className="match-card">
+              <div className="match-header">
+                <div className="league-info d-flex align-items-center gap-2">
+                  <img src={match.leagueLogo} alt="" width="20" height="20" style={{ objectFit: 'contain' }} />
+                  <span className="league-name">{match.leagueName}</span>
+                </div>
+                <span className="match-stadium">{match.stadium}</span>
+                <span className={`match-time ${['1H', '2H', 'LIVE'].includes(match.status) ? 'is-live' : ''}`}>
+                  {['1H', '2H', 'LIVE'].includes(match.status) ? (
+                    <> <span className="blinking-dot"></span> {match.time} </>
+                  ) : (
+                    match.status
+                  )}
+                </span>
               </div>
               
-              <div className="score-section">
-                <div className="score-board">
-                  <span className="score">{match.homeTeam.score}</span>
-                  <span className="divider">-</span>
-                  <span className="score">{match.awayTeam.score}</span>
+              <div className="match-body">
+                <div className="team home">
+                  <span className="team-name">{match.homeTeam.name}</span>
+                  <div className="card-counters">
+                    {match.homeTeam.yellowCards > 0 && <span className="badge text-dark me-1">{match.homeTeam.yellowCards}🟨</span>}
+                    {match.homeTeam.redCards > 0 && <span className="badge me-1">{match.homeTeam.redCards}🟥</span>}
+                  </div>
+                  <img src={match.homeTeam.logo} alt="" />
                 </div>
-                {match.htScore && <div className="ht-score">HT: {match.htScore}</div>}
+                
+                <div className="score-section">
+                  <div className="score-board">
+                    <span className="score">{match.homeTeam.score}</span>
+                    <span className="divider">-</span>
+                    <span className="score">{match.awayTeam.score}</span>
+                  </div>
+                  {match.htScore && <div className="ht-score">HT: {match.htScore}</div>}
+                </div>
+
+                <div className="team away">
+                  <img src={match.awayTeam.logo} alt="" />
+                  <div className="card-counters">
+                    {match.awayTeam.yellowCards > 0 && <span className="badge text-dark ms-1">{match.awayTeam.yellowCards}🟨</span>}
+                    {match.awayTeam.redCards > 0 && <span className="badge ms-1">{match.awayTeam.redCards}🟥</span>}
+                  </div>
+                  <span className="team-name">{match.awayTeam.name}</span>
+                </div>
               </div>
 
-              <div className="team away">
-                <img src={match.awayTeam.logo} alt={match.awayTeam.name} />
-                {match.awayTeam.redCards > 0 && <span className="red-card-icon"></span>}
-                <span className="team-name">{match.awayTeam.name}</span>
-              </div>
+              {match.events.length > 0 && (
+                <div className="match-events-columns">
+                  <div className="events-column home-column">
+                    {match.events.filter((e) => e.isHome).map((event) => (
+                      <div key={event.id} className="event-item">
+                        <span className="event-time">{event.time}</span>
+                        <span className={`event-icon ${event.type === 'Goal' ? 'icon-goal' : event.type === 'YellowCard' ? 'icon-yellow-card' : 'icon-red-card'}`}></span>
+                        <span className="event-player">{event.player}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="events-column away-column">
+                    {match.events.filter((e) => !e.isHome).map((event) => (
+                      <div key={event.id} className="event-item">
+                        <span className="event-player">{event.player}</span>
+                        <span className={`event-icon ${event.type === 'Goal' ? 'icon-goal' : event.type === 'YellowCard' ? 'icon-yellow-card' : 'icon-red-card'}`}></span>
+                        <span className="event-time">{event.time}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-
-          {match.events.length > 0 && (
-              <div className="match-events-columns">
-                {/* Cột trái: Sự kiện của đội nhà */}
-                <div className="events-column home-column">
-                  {match.events.filter(e => e.isHome).map(event => (
-                    <div key={event.id} className="event-item">
-                      <span className="event-time">{event.time}</span>
-                      <span className={`event-icon ${event.type === 'Goal' ? 'icon-goal' : 'icon-red-card'}`}></span>
-                      <span className="event-player">{event.player}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Cột phải: Sự kiện của đội khách */}
-                <div className="events-column away-column">
-                  {match.events.filter(e => !e.isHome).map(event => (
-                    <div key={event.id} className="event-item">
-                      <span className="event-player">{event.player}</span>
-                      <span className={`event-icon ${event.type === 'Goal' ? 'icon-goal' : 'icon-red-card'}`}></span>
-                      <span className="event-time">{event.time}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          </Link>
         ))}
       </div>
+
+      {/* Phần bình luận & thảo luận trực tiếp */}
+      <CommentSection title="Thảo luận & Bình luận trực tiếp các trận đấu" />
     </div>
   );
-};
-
-export default LiveScores;
+}

@@ -50,6 +50,7 @@
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     padding: 12px 14px;
+    height: 100%;
 }
 
 .info-label {
@@ -62,6 +63,48 @@
     font-size: 14.5px;
     color: #1e293b;
     word-break: break-all;
+}
+
+/* Khối giới thiệu bản thân / Bio */
+.bio-card {
+    background-color: #f0f7ff;
+    border: 1px solid #d0e3ff;
+    border-left: 4px solid #1a3c8b;
+}
+
+.bio-text {
+    font-size: 14px;
+    color: #334155;
+    line-height: 1.6;
+}
+
+.profile-bio-summary {
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+/* Huy hiệu môn thể thao */
+.sport-badge {
+    background-color: #1a3c8b;
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.2px;
+}
+
+/* Nút bấm chọn môn thể thao khi chỉnh sửa */
+.sport-toggle-btn {
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.sport-toggle-btn:hover {
+    transform: translateY(-1px);
 }
 
 /* Preset avatars */

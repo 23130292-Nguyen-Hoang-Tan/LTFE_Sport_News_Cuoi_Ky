@@ -188,6 +188,14 @@
     padding: 4px 0;
 }
 
+.user-profile-trigger.active-profile {
+    color: #ffcc00;
+}
+
+.user-profile-trigger.active-profile .user-avatar {
+    border-color: #ffcc00;
+}
+
 .user-avatar {
     width: 32px;
     height: 32px;

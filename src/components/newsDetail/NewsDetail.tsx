@@ -1,29 +1,47 @@
 import { Link } from 'react-router-dom';
 import './NewsDetail.css';
 import NewsComment from "../newsComment/NewsComment.tsx";
+import { useState, useEffect } from 'react';
+import {  useParams } from 'react-router-dom';
+import { fetchData } from "../../service/rssService.ts";
+import type { NewsType } from "../../data/news.ts";
 
 export default function NewsDetail() {
+    const { id } = useParams<{ id: string }>();
+    const [news, setNews] = useState<NewsType | null>(null);
+
+    useEffect(() => {
+        async function loadNewsDetail() {
+            const allNews = await fetchData();
+            const found = allNews.find((item) => String(item.id) === id);
+            setNews(found || allNews[0] || null);
+        }
+        loadNewsDetail();
+    }, [id]);
+
+    if (!news) return null;
+
     return (
         <article className="news-detail-container">
             <div className="news-breadcrumb">
-                <Link to="#">Trang chủ</Link>
+                <Link to="/">Trang chủ</Link>
                 <span className="separator">&gt;</span>
-                <Link to="#">Bóng đá Việt Nam</Link>
+                <Link to="#">{news.category}</Link>
             </div>
             {/* tiêu đề */}
             <h1 className="news-title">
-                CĐV ĐNÁ đồng loạt nhắc tên Việt Nam sau địa chấn của U23 Singapore tại Pleiku
+                {news.title}
             </h1>
 
             {/* thông tin tác giả*/}
             <div className="news-meta-bar">
                 {/* tác giả */}
                 <div className="news-author-info">
-                    <img src="https://via.placeholder.com/38" alt="Hoàng Cầm" className="author-avatar" />
+                    <img src="https://via.placeholder.com/38" alt={news.author} className="author-avatar" />
                     <div>
-                        <span className="author-name">Hoàng Cầm</span>
+                        <span className="author-name">{news.author}</span>
                         <i className="bi bi-check-circle-fill author-tick ms-1"></i>
-                        <span className="publish-time ms-2">6 phút trước</span>
+                        <span className="publish-time ms-2">{news.createdAt}</span>
                     </div>
                 </div>
 
@@ -40,34 +58,26 @@ export default function NewsDetail() {
 
             {/* đoạn sapo */}
             <div className="news-sapo">
-                Chiến tích cầm hòa U23 Qatar của U23 Singapore khiến cuộc đua vô địch Gia Lai VTV Cup 2026 thêm hấp dẫn, đồng thời mở ra cơ hội lớn cho chủ nhà U23 Việt Nam.
+                {news.summary || news.description}
             </div>
 
             {/* nội dung chi tiết */}
             <div className="news-content">
-                <p>
-                    Chiều 10/11, U23 Singapore tạo nên bất ngờ lớn khi xuất sắc cầm hòa U23 Qatar với tỷ số 0-0 trong trận khai màn giải giao hữu quốc tế Gia Lai VTV Cup 2026 trên sân Pleiku. Dù bị đánh giá thấp hơn đáng kể, đại diện Đông Nam Á vẫn thi đấu đầy kiên cường, khiến đối thủ đến từ Tây Á bất lực trong việc tìm kiếm bàn thắng.
-                </p>
-
                 <figure>
                     <img
-                        src=""
-                        alt="U23 Singapore thi đấu kiên cường trước U23 Qatar"
+                        src={news.imageUrl}
+                        alt={news.title}
                     />
-                    <figcaption>
-                        U23 Singapore (áo đỏ) thi đấu quả cảm trước đối thủ mạnh U23 Qatar.
-                    </figcaption>
+                    <figcaption>{news.title}</figcaption>
                 </figure>
 
-                <p>
-                    Kết quả này khiến cục diện bảng đấu trở nên cực kỳ khó đoán. Ngay sau khi trận đấu kết thúc, trên các diễn đàn bóng đá khu vực Đông Nam Á, người hâm mộ đã để lại hàng loạt bình luận tán dương màn trình diễn của U23 Singapore, đồng thời liên tục réo tên U23 Việt Nam cho trận đấu tiếp theo.
-                </p>
+                <p>{news.content || news.description}</p>
             </div>
 
             {/* thẻ tag bài viết */}
             <div className="news-tags">
                 <span className="tag-label">Chủ đề:</span>
-                <Link to="#" className="tag-item">U23 Việt Nam</Link>
+                <Link to="#" className="tag-item">{news.category}</Link>
                 <Link to="#" className="tag-item">U23 Singapore</Link>
                 <Link to="#" className="tag-item">VTV Cup 2026</Link>
             </div>

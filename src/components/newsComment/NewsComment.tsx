@@ -28,12 +28,6 @@ export default function NewsComments() {
             <div className="text-end text-muted mb-3" style={{ fontSize: '13px' }}>
                 Hiển thị <b>{comments.length}/{comments.length}</b>
             </div>
-    {/* báo cáo nội dung/khiếu nại bản quyền */}
-    <div className="d-flex justify-content-end">
-    <button className="btn-report">
-        BÁO CÁO NỘI DUNG / KHIẾU NẠI BẢN QUYỀN <i className="bi bi-file-earmark-text ms-1"></i>
-        </button>
-        </div>
-        </section>
+        </section>            
 );
 }
