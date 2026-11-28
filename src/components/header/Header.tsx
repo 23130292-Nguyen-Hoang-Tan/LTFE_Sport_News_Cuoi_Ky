@@ -4,30 +4,50 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 function Header() {
-    // Chỉ lấy biến isAuthenticated để kiểm tra trạng thái ẩn/hiện nút
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, logout } = useAuth();
 
     return (
         <header className="main-header">
             <div className="header-content">
                 <div className="container d-flex align-items-center justify-content-between py-2">
-                    {/* logo */}
+                    {/* Logo */}
                     <Link to="/" className="logo">
                         <img src={logo} alt="Thể Thao 247" />
                     </Link>
 
-                    {/* menu bên phải */}
+                    {/* Tagline / Thông tin cập nhật */}
+                    <div className="header-tagline d-none d-lg-flex align-items-center gap-2 text-muted small">
+                        <i className="bi bi-broadcast text-danger animate-pulse"></i>
+                        <span>Kênh tin tức & Bình luận thể thao hàng đầu 24/7</span>
+                    </div>
+
+                    {/* Menu bên phải */}
                     <div className="nav-right d-flex align-items-center gap-3">
-                        <div className="d-flex align-items-center gap-2 ps-3 ms-2">
-                            {/*Đặt điều kiện nếu CHƯA đăng nhập thì hiện 2 nút này */}
-                            {!isAuthenticated && (
+                        <Link to="/live-scores" className="btn-group-custom text-decoration-none">
+                            <i className="bi bi-people-fill"></i>
+                            <span>Góc cộng đồng</span>
+                        </Link>
+
+                        {/* Cụm User Authentication */}
+                        <div className="d-flex align-items-center gap-2 border-start ps-3 ms-2">
+                            {isAuthenticated ? (
+                                <button
+                                    type="button"
+                                    onClick={logout}
+                                    className="btn-box header-logout-btn"
+                                    title="Đăng xuất"
+                                >
+                                    <i className="bi bi-box-arrow-right"></i>
+                                    <span>Đăng xuất</span>
+                                </button>
+                            ) : (
                                 <>
-                                    <Link to="/login" className="btn-box login-btn">
+                                    <Link to="/login" className="btn-box login-btn text-decoration-none">
                                         <i className="bi bi-person"></i>
                                         <span>Đăng nhập</span>
                                     </Link>
 
-                                    <Link to="/register" className="btn-box">
+                                    <Link to="/register" className="btn-box text-decoration-none">
                                         <i className="bi bi-person-plus"></i>
                                         <span>Đăng ký</span>
                                     </Link>

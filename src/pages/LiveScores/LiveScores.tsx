@@ -1,9 +1,39 @@
 import { useState, useEffect } from 'react';
 import './LiveScores.css';
 import { Link } from 'react-router-dom';
+import CommentSection from '../../components/comments/CommentSection';
+
+interface LiveEvent {
+  id: number;
+  type: 'Goal' | 'YellowCard' | 'RedCard';
+  player: string;
+  time: string;
+  isHome: boolean;
+}
+
+interface LiveTeam {
+  name: string;
+  logo: string;
+  score: number;
+  yellowCards: number;
+  redCards: number;
+}
+
+interface LiveMatch {
+  id: number;
+  leagueName: string;
+  leagueLogo: string;
+  status: string;
+  time: string;
+  stadium: string;
+  htScore?: string;
+  homeTeam: LiveTeam;
+  awayTeam: LiveTeam;
+  events: LiveEvent[];
+}
 
 export default function LiveScores() {
-  const [matches, setMatches] = useState<any[]>([]);
+  const [matches, setMatches] = useState<LiveMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,17 +50,33 @@ export default function LiveScores() {
         }
       });
 
-      const data = await response.json();
+      const data = await response.json() as {
+        errors?: Record<string, string>;
+        response: Array<{
+          fixture: { id: number; status: { short: string; elapsed: number | null }; venue: { name: string | null } };
+          league: { country: string; name: string; logo: string };
+          teams: { home: { id: number; name: string; logo: string }; away: { id: number; name: string; logo: string } };
+          goals: { home: number | null; away: number | null };
+          score: { halftime: { home: number | null; away: number | null } };
+          events?: Array<{
+            type: string;
+            detail?: string;
+            player: { name: string | null };
+            team: { id: number };
+            time: { elapsed: number };
+          }>;
+        }>;
+      };
       if (data.errors && Object.keys(data.errors).length > 0) {
         throw new Error('Hết lượt gọi API hoặc lỗi hệ thống.');
       }
 
-      const list = data.response.map((item: any) => {
+      const list: LiveMatch[] = data.response.map((item) => {
         const homeId = item.teams.home.id;
-        const events = (item.events || []).map((ev: any, idx: number) => {
+        const events: LiveEvent[] = (item.events || []).map((ev, idx) => {
           let type: 'Goal' | 'YellowCard' | 'RedCard' = 'Goal';
           if (ev.type === 'Card') {
-            type = ev.detail.includes('Yellow') ? 'YellowCard' : 'RedCard';
+            type = ev.detail?.includes('Yellow') ? 'YellowCard' : 'RedCard';
           }
           return {
             id: idx,
@@ -53,22 +99,22 @@ export default function LiveScores() {
             name: item.teams.home.name,
             logo: item.teams.home.logo,
             score: item.goals.home ?? 0,
-            yellowCards: events.filter((e: any) => e.isHome && e.type === 'YellowCard').length,
-            redCards: events.filter((e: any) => e.isHome && e.type === 'RedCard').length
+            yellowCards: events.filter((e) => e.isHome && e.type === 'YellowCard').length,
+            redCards: events.filter((e) => e.isHome && e.type === 'RedCard').length
           },
           awayTeam: {
             name: item.teams.away.name,
             logo: item.teams.away.logo,
             score: item.goals.away ?? 0,
-            yellowCards: events.filter((e: any) => !e.isHome && e.type === 'YellowCard').length,
-            redCards: events.filter((e: any) => !e.isHome && e.type === 'RedCard').length
+            yellowCards: events.filter((e) => !e.isHome && e.type === 'YellowCard').length,
+            redCards: events.filter((e) => !e.isHome && e.type === 'RedCard').length
           },
           events
         };
       });
 
       setMatches(list);
-    } catch (err) {
+    } catch {
       setError('Không thể tải dữ liệu tỉ số trực tiếp từ máy chủ.');
     } finally {
       setLoading(false);
@@ -77,6 +123,7 @@ export default function LiveScores() {
 
   // Chỉ gọi API một lần duy nhất khi vừa mở trang (mount component)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchLiveScores();
     // Đã xóa bỏ setInterval ở đây để tiết kiệm tối đa lượt gọi API.
   }, []);
@@ -156,7 +203,7 @@ export default function LiveScores() {
               {match.events.length > 0 && (
                 <div className="match-events-columns">
                   <div className="events-column home-column">
-                    {match.events.filter((e: any) => e.isHome).map((event: any) => (
+                    {match.events.filter((e) => e.isHome).map((event) => (
                       <div key={event.id} className="event-item">
                         <span className="event-time">{event.time}</span>
                         <span className={`event-icon ${event.type === 'Goal' ? 'icon-goal' : event.type === 'YellowCard' ? 'icon-yellow-card' : 'icon-red-card'}`}></span>
@@ -166,7 +213,7 @@ export default function LiveScores() {
                   </div>
 
                   <div className="events-column away-column">
-                    {match.events.filter((e: any) => !e.isHome).map((event: any) => (
+                    {match.events.filter((e) => !e.isHome).map((event) => (
                       <div key={event.id} className="event-item">
                         <span className="event-player">{event.player}</span>
                         <span className={`event-icon ${event.type === 'Goal' ? 'icon-goal' : event.type === 'YellowCard' ? 'icon-yellow-card' : 'icon-red-card'}`}></span>
@@ -180,6 +227,9 @@ export default function LiveScores() {
           </Link>
         ))}
       </div>
+
+      {/* Phần bình luận & thảo luận trực tiếp */}
+      <CommentSection title="Thảo luận & Bình luận trực tiếp các trận đấu" />
     </div>
   );
 }

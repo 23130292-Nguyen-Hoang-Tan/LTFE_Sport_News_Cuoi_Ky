@@ -1,15 +1,43 @@
 import { useState, useEffect } from 'react';
 import './StandingsPage.css';
 
+interface StandingTeam {
+    rank: number;
+    id: number;
+    name: string;
+    logo: string;
+    played: number;
+    won: number;
+    drawn: number;
+    lost: number;
+    gd: string;
+    points: number;
+    form: string[];
+    description: string;
+    goalsFor: number;
+    goalsAgainst: number;
+    recordSummary: string;
+    homeRecord: string;
+    awayRecord: string;
+}
+
+interface SquadPlayer {
+    id: number;
+    name: string;
+    photo?: string;
+    position?: string;
+    number?: number;
+}
+
 export default function StandingsPage() {
-    const [standings, setStandings] = useState<any[]>([]);
+    const [standings, setStandings] = useState<StandingTeam[]>([]);
     const [selectedTeamId, setSelectedTeamId] = useState<number>(42); // Mặc định chọn Arsenal (ID: 42)
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     // State phục vụ Modal danh sách cầu thủ
     const [showSquadModal, setShowSquadModal] = useState(false);
-    const [squad, setSquad] = useState<any[]>([]);
+    const [squad, setSquad] = useState<SquadPlayer[]>([]);
     const [loadingSquad, setLoadingSquad] = useState(false);
     const [squadError, setSquadError] = useState<string | null>(null);
 
@@ -27,12 +55,29 @@ export default function StandingsPage() {
                     }
                 });
 
-                const data = await response.json();
+                const data = await response.json() as {
+                    response?: Array<{
+                        league: {
+                            standings: Array<Array<{
+                                rank: number;
+                                team: { id: number; name: string; logo: string };
+                                all: { played: number; win: number; draw: number; lose: number; goals: { for: number; against: number } };
+                                home: { win: number; draw: number; lose: number };
+                                away: { win: number; draw: number; lose: number };
+                                goals: { for: number; against: number };
+                                goalsDiff: number;
+                                points: number;
+                                form: string | null;
+                                description?: string;
+                            }>>;
+                        };
+                    }>;
+                };
 
                 if (data.response && data.response.length > 0) {
                     const rawTable = data.response[0].league.standings[0];
 
-                    const formattedTable = rawTable.map((item: any) => {
+                    const formattedTable: StandingTeam[] = rawTable.map((item) => {
                         // Đường dẫn chuẩn của API-Football: item.goals và item.home / item.away
                         const gf = item.goals?.for ?? item.all?.goals?.for ?? 0;
                         const ga = item.goals?.against ?? item.all?.goals?.against ?? 0;
@@ -102,7 +147,10 @@ export default function StandingsPage() {
                 }
             });
 
-            const data = await response.json();
+            const data = await response.json() as {
+                errors?: Record<string, string>;
+                response?: Array<{ players?: SquadPlayer[] }>;
+            };
             if (data.errors && Object.keys(data.errors).length > 0) {
                 throw new Error('Lỗi hoặc hết lượt gọi API.');
             }
@@ -268,7 +316,7 @@ export default function StandingsPage() {
 
                             {!loadingSquad && squad.length > 0 && (
                                 <div className="squad-player-list">
-                                    {squad.map((player: any) => (
+                                    {squad.map((player) => (
                                         <div key={player.id} className="squad-player-row">
                                             <div className="squad-player-info">
                                                 {player.photo && (

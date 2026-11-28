@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 
 export type SortOption = 'default' | 'newest' | 'oldest' | 'popular';
 
@@ -35,12 +35,12 @@ export function FilterProvider({ children }: { children: React.ReactNode }) {
     const [sortBy, setSortBy] = useState<SortOption>("default");
     const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
     const [selectedCategory, setSelectedCategory] = useState<string>("");
-    const clearFilters = () => {
+    const clearFilters = useCallback(() => {
         setSearchKeyword("");
         setSortBy("default");
         setIsSearchOpen(false);
         setSelectedCategory("");
-    };
+    }, []);
     return (
         <FilterContext.Provider
             value={{

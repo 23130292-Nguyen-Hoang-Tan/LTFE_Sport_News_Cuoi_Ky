@@ -1,21 +1,68 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import './MatchDetail.css';
+
+interface MatchEvent {
+    time: string;
+    type: 'goal' | 'card';
+    team: 'home' | 'away';
+    text: string;
+}
+
+interface MatchStat {
+    label: string;
+    home: string;
+    away: string;
+}
+
+interface MatchData {
+    tournament: string;
+    status: string;
+    minute: string;
+    homeTeam: { name: string; logo: string; score: number; scorers: string[] };
+    awayTeam: { name: string; logo: string; score: number; scorers: string[] };
+    stats: MatchStat[];
+    events: MatchEvent[];
+}
+
+interface ApiEvent {
+    type: string;
+    detail?: string;
+    team: { id: number };
+    player: { name: string | null };
+    time: { elapsed: number };
+}
+
+interface ApiStat {
+    type: string;
+    value: string | number | null;
+}
+
+interface ApiMatchResponse {
+    response?: Array<{
+        fixture: { status: { long: string | null; elapsed: number | null } };
+        league: { country: string | null; name: string; round: string | null };
+        teams: { home: { id: number; name: string; logo: string }; away: { id: number; name: string; logo: string } };
+        goals: { home: number | null; away: number | null };
+        events?: ApiEvent[];
+        statistics?: Array<{ statistics: ApiStat[] }>;
+    }>;
+}
 
 export default function MatchDetail() {
     const { id } = useParams();
     
-    const [matchData, setMatchData] = useState<any>(null);
+    const [matchData, setMatchData] = useState<MatchData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     // Tách hàm gọi API riêng để có thể tái sử dụng khi người dùng bấm nút "Làm mới"
-    const fetchMatchDetail = async () => {
+    const fetchMatchDetail = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
             
-            let matchId = id;
+            let matchId: string | number = id ?? '';
 
             // LOGIC XỬ LÝ KHI BẤM TRỰC TIẾP "CHI TIẾT TRẬN ĐẤU" (Không có ID trên URL)
             if (!matchId) {
@@ -26,10 +73,12 @@ export default function MatchDetail() {
                         'x-rapidapi-host': 'v3.football.api-sports.io'
                     }
                 });
-                const liveData = await liveRes.json();
+                const liveData = await liveRes.json() as {
+                    response?: Array<{ fixture: { id: number } }>;
+                };
                 
                 if (liveData.response && liveData.response.length > 0) {
-                    matchId = liveData.response[0].fixture.id; 
+                    matchId = liveData.response[0].fixture.id;
                 } else {
                     matchId = "718306"; 
                 }
@@ -44,7 +93,7 @@ export default function MatchDetail() {
                 }
             });
 
-            const data = await response.json();
+            const data = await response.json() as ApiMatchResponse;
 
             if (!data.response || data.response.length === 0) {
                 throw new Error('Không tìm thấy thông tin trận đấu.');
@@ -54,10 +103,10 @@ export default function MatchDetail() {
             const homeId = item.teams.home.id;
 
             // Hàm gom nhóm người ghi bàn (Ví dụ: A. Tamm ⚽ x12)
-            const processScorers = (eventsList: any[], teamId: number) => {
+            const processScorers = (eventsList: ApiEvent[], teamId: number) => {
                 const goalMap: { [playerName: string]: number } = {};
 
-                eventsList.forEach((ev: any) => {
+                eventsList.forEach((ev) => {
                     if (ev.type === 'Goal' && ev.team.id === teamId) {
                         const name = ev.player.name || 'Cầu thủ';
                         goalMap[name] = (goalMap[name] || 0) + 1;
@@ -74,9 +123,9 @@ export default function MatchDetail() {
             const awayScorers = processScorers(item.events || [], item.teams.away.id);
 
             // Lọc danh sách diễn biến trận đấu (Timeline)
-            const events = (item.events || []).map((ev: any) => {
+            const events = (item.events || []).map((ev): MatchEvent => {
                 const isHome = ev.team.id === homeId;
-                let text = '';
+                let text: string;
                 if (ev.type === 'Goal') {
                     text = `Vào! ${ev.player.name} ghi bàn (${ev.time.elapsed}')`;
                 } else if (ev.type === 'Card') {
@@ -101,8 +150,8 @@ export default function MatchDetail() {
             let yellowHome = "0", yellowAway = "0";
 
             if (item.statistics && item.statistics.length === 2) {
-                const parseStat = (statList: any[], keywords: string[]) => {
-                    const found = statList.find((s: any) => keywords.some(kw => s.type.toLowerCase().includes(kw.toLowerCase())));
+                const parseStat = (statList: ApiStat[], keywords: string[]) => {
+                    const found = statList.find((s) => keywords.some(kw => s.type.toLowerCase().includes(kw.toLowerCase())));
                     return found && found.value !== null ? String(found.value) : "0";
                 };
 
@@ -123,8 +172,8 @@ export default function MatchDetail() {
             }
 
             // Tự động đếm số thẻ vàng từ mảng sự kiện (Events) để điền bù nếu thống kê chính thức trống
-            const calculatedYellowHome = events.filter((e: any) => e.team === 'home' && e.type === 'card' && e.text.includes('Yellow')).length;
-            const calculatedYellowAway = events.filter((e: any) => e.team === 'away' && e.type === 'card' && e.text.includes('Yellow')).length;
+            const calculatedYellowHome = events.filter((e) => e.team === 'home' && e.type === 'card' && e.text.includes('Yellow')).length;
+            const calculatedYellowAway = events.filter((e) => e.team === 'away' && e.type === 'card' && e.text.includes('Yellow')).length;
 
             if (yellowHome === "0" && calculatedYellowHome > 0) yellowHome = String(calculatedYellowHome);
             if (yellowAway === "0" && calculatedYellowAway > 0) yellowAway = String(calculatedYellowAway);
@@ -161,12 +210,13 @@ export default function MatchDetail() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
 
     // Chỉ gọi API một lần duy nhất khi load trang hoặc khi ID thay đổi
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchMatchDetail();
-    }, [id]);
+    }, [id, fetchMatchDetail]);
 
     if (loading && !matchData) return <div className="text-center py-5">Đang tải chi tiết trận đấu...</div>;
     if (error) return <div className="alert alert-danger text-center m-4">{error}</div>;
@@ -235,7 +285,7 @@ export default function MatchDetail() {
                     <h3><i className="bi bi-clock-history me-2"></i>Diễn biến chính</h3>
                     <div className="timeline-list">
                         {matchData.events.length > 0 ? (
-                            matchData.events.map((ev: any, index: number) => (
+                            matchData.events.map((ev, index) => (
                                 <div key={index} className={`timeline-item ${ev.team}`}>
                                     <span className="time-badge">{ev.time}</span>
                                     <span className="event-text">{ev.text}</span>
@@ -252,7 +302,7 @@ export default function MatchDetail() {
                     <h3><i className="bi bi-bar-chart-fill me-2"></i>Thống kê trận đấu</h3>
                     <div className="stats-list">
                         {matchData.stats.length > 0 ? (
-                            matchData.stats.map((st: any, index: number) => (
+                            matchData.stats.map((st, index) => (
                                 <div key={index} className="stat-row">
                                     <span className="stat-val home-val">{st.home}</span>
                                     <span className="stat-label">{st.label}</span>

@@ -26,7 +26,7 @@ export default function FilterLayout({ children }: FilterLayoutProps) {
     // tats giao diện tìm kiếm nếu người dùng chuyển trang hoặc tắt tìm kiếm
     useEffect(() => {
         clearFilters();
-    }, [location.pathname]);
+    }, [clearFilters, location.pathname]);
 
     const keyword = searchKeyword.trim().toLowerCase();
 
