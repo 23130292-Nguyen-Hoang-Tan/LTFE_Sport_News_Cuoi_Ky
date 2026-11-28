@@ -1,9 +1,24 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useFilter } from '../../context/FilterContext';
 import './Navbar.css';
+import type { SortOption } from "../../context/FilterContext";
+
 
 export default function Navbar() {
     const { user, isAuthenticated, logout } = useAuth();
+    const { searchKeyword, setSearchKeyword, sortBy, setSortBy, isSearchOpen,
+        setIsSearchOpen, selectedCategory,
+        setSelectedCategory, } = useFilter();
+    const location = useLocation();
+    const isHomePage = location.pathname === '/';
+    const canSort = isHomePage || isSearchOpen || selectedCategory !== "";
+
+    //xử lý khi bấm chọn danh mục
+    const handleSelectCategory = (e: React.MouseEvent, categoryKey: string) => {
+        e.preventDefault();
+        setSelectedCategory(categoryKey);
+    };
 
     return (
         <nav className="main-navbar">
@@ -30,12 +45,13 @@ export default function Navbar() {
                             DANH MỤC <i className="bi bi-chevron-down ms-1"></i>
                         </Link>
                         <div className="dropdown-content">
-                            <Link to="/category/basketball">Bóng rổ</Link>
-                            <Link to="/category/tennis">Quần vợt (Tennis)</Link>
-                            <Link to="/category/badminton">Cầu lông</Link>
-                            <Link to="/category/motorsport">Đua xe (F1 / MotoGP)</Link>
-                            <Link to="/category/martial-arts">Võ thuật (Boxing / UFC)</Link>
-                            <Link to="/category/swimming">Bơi lội</Link>
+                            <Link to="#" onClick={(e) => handleSelectCategory(e, "Bóng rổ")}>Bóng rổ</Link>
+                            <Link to="#" onClick={(e) => handleSelectCategory(e, "Bóng đá")}>Bóng đá</Link>
+                            <Link to="#" onClick={(e) => handleSelectCategory(e, "Quần vợt (Tennis)")}>Quần vợt (Tennis)</Link>
+                            <Link to="#" onClick={(e) => handleSelectCategory(e, "Cầu lông")}>Cầu lông</Link>
+                            <Link to="#" onClick={(e) => handleSelectCategory(e, "Đua xe (F1 / MotoGP)")}>Đua xe (F1 / MotoGP)</Link>
+                            <Link to="#" onClick={(e) => handleSelectCategory(e, "Võ thuật (Boxing / UFC)")}>Võ thuật (Boxing / UFC)</Link>
+                            <Link to="#" onClick={(e) => handleSelectCategory(e, "Bơi lội")}>Bơi lội</Link>
                         </div>
                     </div>
 
@@ -55,19 +71,36 @@ export default function Navbar() {
                     </div>
                 </div>
 
-                {/* Tìm kiếm + lọc */}
+                {/* Tìm kiếm + sắp xếp */}
                 <div className="nav-center">
                     <div className="search-group">
                         <input
                             type="text"
                             placeholder="Tìm kiếm tin tức, đội bóng..."
                             className="search-input"
+                            value={searchKeyword}
+                            onFocus={() => setIsSearchOpen(true)}
+                            onChange={(e) => {
+                                setIsSearchOpen(true);
+                                setSearchKeyword(e.target.value);
+                            }}
                         />
-                        <select className="filter-select">
+                        <select
+                            className="filter-select"
+                            value={sortBy}
+                            disabled={!canSort}
+                            onChange={(e) => setSortBy(e.target.value as SortOption)}
+                        >
+                            <option value="default">Sắp xếp</option>
                             <option value="newest">Mới nhất</option>
+                            <option value="oldest">Cũ nhất</option>
                             <option value="popular">Phổ biến</option>
                         </select>
-                        <button className="search-btn">
+                        <button
+                            type="button"
+                            className="search-btn"
+                            onClick={() => setIsSearchOpen(true)}
+                        >
                             <i className="bi bi-search"></i>
                         </button>
                     </div>

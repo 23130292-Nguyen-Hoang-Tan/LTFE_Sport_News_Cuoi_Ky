@@ -17,33 +17,39 @@ import Profile from './pages/profile/Profile';
 import { AuthProvider } from './context/AuthContext';
 import NewsDetailPage from "./pages/newsDetailPage/NewsDetailPage";
 
+import FilterLayout from './components/filterLayout/FilterLayout.tsx';
+import { FilterProvider } from './context/FilterContext.tsx';
+
 function App() {
     return (
         <AuthProvider>
-            <BrowserRouter>
-                {/* Các thành phần dùng chung đặt ở đây sẽ luôn hiển thị */}
-                <Header />
-                <Navbar />
+            <FilterProvider>
+                <BrowserRouter>
+                    {/* Các thành phần dùng chung đặt ở đây sẽ luôn hiển thị */}
+                    <Header />
+                    <Navbar />
 
-                {/* Phần nội dung thay đổi theo từng trang */}
-                <div className="main-content">
-                    <Routes>
-                        <Route path="/" element={<HomePage />} />
-                        <Route path="/live-scores" element={<LiveScores />} />
-                        <Route path="/match-detail" element={<MatchDetail />} />
-                        <Route path="/match-detail/:id" element={<MatchDetail />} />
-                        <Route path="/standings" element={<StandingsPage />} />
-                        <Route path="/saved-articles" element={<SavedArticles />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/register" element={<Register />} />
-                        <Route path="/profile" element={<Profile />} />
-                        <Route path="/news/:id" element={<NewsDetailPage />} />
-                    </Routes>
-                </div>
+                    {/* Phần nội dung thay đổi theo từng trang */}
+                    <div className="main-content">
+                        <FilterLayout>
+                            <Routes>
+                                <Route path="/" element={<HomePage />} />
+                                <Route path="/live-scores" element={<LiveScores />} />
+                                <Route path="/match-detail" element={<MatchDetail />} />
+                                <Route path="/standings" element={<StandingsPage />} />
+                                <Route path="/saved-articles" element={<SavedArticles />} />
+                                <Route path="/login" element={<Login />} />
+                                <Route path="/register" element={<Register />} />
+                                <Route path="/profile" element={<Profile />} />
+                                <Route path="/news/:id" element={<NewsDetailPage />} />
+                            </Routes>
+                        </FilterLayout>
+                    </div>
 
-                {/* Footer luôn nằm dưới cùng */}
-                <Footer />
-            </BrowserRouter>
+                    {/* Footer luôn nằm dưới cùng */}
+                    <Footer />
+                </BrowserRouter>
+            </FilterProvider>
         </AuthProvider>
     );
 }
